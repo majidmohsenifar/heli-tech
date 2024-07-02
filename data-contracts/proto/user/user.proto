@@ -32,6 +32,7 @@ message LoginResponse {
 
 message GetUserDataByTokenRequest {
 	string token = 1;
+	string path = 2;
 }
 
 message GetUserDataByTokenResponse {
