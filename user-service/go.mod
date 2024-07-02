@@ -1,4 +1,4 @@
-module heli-tech/user-service
+module github.com/majidmohsenifar/heli-tech/user-service
 
 go 1.22.4
 

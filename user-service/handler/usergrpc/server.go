@@ -1,8 +1,8 @@
 package usergrpc
 
 import (
-	"git.energy/corepass/notification-notifier-service/service/user"
-	userpb "git.energy/ting/data-contracts/proto/user"
+	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
+	"github.com/majidmohsenifar/heli-tech/user-service/service/user"
 )
 
 type server struct {

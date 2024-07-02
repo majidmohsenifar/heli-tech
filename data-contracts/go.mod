@@ -1,4 +1,7 @@
-module heli-tech/data-contracts
+module github.com/majidmohsenifar/heli-tech/data-contracts
+
+
+
 
 go 1.22.4
 
