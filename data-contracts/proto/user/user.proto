@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./proto;usergrpc";
+
+service User {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc GetUserDataByToken(GetUserDataByTokenRequest) returns (GetUserDataByTokenResponse);
+}
+
+message RegisterRequest {
+	string email = 1;
+	string password = 2;
+	string confirmPassword = 3;
+}
+
+message RegisterResponse {
+	bool ok = 1;
+}
+
+message LoginRequest {
+	string email = 1;
+	string password = 2;
+}
+
+message LoginResponse {
+	string token = 1;
+}
+
+
+message GetUserDataByTokenRequest {
+	string token = 1;
+}
+
+message GetUserDataByTokenResponse {
+	int64 id = 1;
+	string email = 2;
+}

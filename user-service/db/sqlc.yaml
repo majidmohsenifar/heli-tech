@@ -1,0 +1,14 @@
+version: "2"
+sql:
+- schema: "migrations/"
+  queries: 
+    - "user.sql"
+    - "role_route.sql"
+  engine: "postgresql"
+  gen:
+    go: 
+      package: "repository"
+      out: "../repository"
+      sql_package: "pgx/v5"
+      emit_methods_with_db_argument: true
+
