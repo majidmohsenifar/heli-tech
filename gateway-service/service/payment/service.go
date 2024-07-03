@@ -4,12 +4,11 @@ import (
 	"context"
 	"log/slog"
 
-	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
+	paymentpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/payment"
 )
 
 type Service struct {
-	//TODO: change this to payment
-	paymentClient userpb.UserClient
+	paymentClient paymentpb.PaymentClient
 	logger        *slog.Logger
 }
 
@@ -40,7 +39,7 @@ func (s *Service) Deposit(
 }
 
 func NewService(
-	paymentClient userpb.UserClient,
+	paymentClient paymentpb.PaymentClient,
 	logger *slog.Logger,
 ) *Service {
 	return &Service{

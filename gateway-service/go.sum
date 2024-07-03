@@ -81,6 +81,8 @@ github.com/mailru/easyjson v0.7.6 h1:8yTIVnZgCoiM1TgqoeTl+LfU5Jg6/xL3QhGQnimLYnA
 github.com/mailru/easyjson v0.7.6/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240702160301-27464121a39b h1:5ruHBhPicQIJdJQdmt5CF2DxZ6PO6GII8k+tydjDGpw=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240702160301-27464121a39b/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240703145439-331d95923581 h1:4nldGDiecmySdPtAyjOXM6fhOFv6oamh21AHxc2q8IQ=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240703145439-331d95923581/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
 github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
