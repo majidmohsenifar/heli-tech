@@ -11,9 +11,12 @@ import (
 	"github.com/majidmohsenifar/heli-tech/gateway-service/logger"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/service/user"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+const (
+	Address = "localhost:8080"
 )
 
 func main() {
@@ -31,35 +34,26 @@ func main() {
 	}
 	userClient := userpb.NewUserClient(userConn)
 
-
 	userService := user.NewService(userClient, logger)
 
 	userHandler := api.NewUserHandler(userService, contentService, validator)
-	socialHandler := api.NewSocialHandler(socialService, contentService, validator)
-	contentHandler := api.NewContentHandler(contentService, validator)
-	notifHandler := api.NewNotifHandler(notifService, validator)
-	roomHandler := api.NewRoomHandler(roomService, validator)
 	api.InitialSwagger()
 	router := router.New(
-		notifHandler,
 		userHandler,
-		socialHandler,
-		contentHandler,
-		roomHandler,
-		authService,
 		userService,
 		logger,
 	)
 	if err != nil {
-		logger.Fatal("failed to initialize router", zap.Error(err))
+		logger.Error("failed to initialize router", err)
+		os.Exit(1)
 	}
 	httpServer := &http.Server{
-		Addr:    config.ServerHttpAddress(),
+		Addr:    Address,
 		Handler: router.Handler,
 	}
-	logger.Info("starting HTTP server on %s", zap.String("HTTP server address: ", config.ServerHttpAddress()))
 	err = httpServer.ListenAndServe()
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Error("cannot listen and serv", err)
+		os.Exit(1)
 	}
 }
