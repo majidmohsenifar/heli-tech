@@ -3,12 +3,15 @@ package api
 import (
 	"net/http"
 
-	"git.energy/ting/gateway-service/config"
-	"git.energy/ting/gateway-service/docs"
+	"github.com/majidmohsenifar/heli-tech/gateway-service/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+const (
+	swaggerURL = "localhost:8081"
 )
 
 func InitialSwagger() {
@@ -16,5 +19,5 @@ func InitialSwagger() {
 	r := gin.Default()
 	url := ginSwagger.URL("./swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
-	go http.ListenAndServe(config.SwaggerUrl(), r)
+	go http.ListenAndServe(swaggerURL, r)
 }

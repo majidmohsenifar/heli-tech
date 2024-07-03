@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/config"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/handler/api"
@@ -35,8 +36,8 @@ func main() {
 	userClient := userpb.NewUserClient(userConn)
 
 	userService := user.NewService(userClient, logger)
-
-	userHandler := api.NewUserHandler(userService, contentService, validator)
+	validator := validator.New()
+	userHandler := api.NewUserHandler(userService, validator)
 	api.InitialSwagger()
 	router := router.New(
 		userHandler,

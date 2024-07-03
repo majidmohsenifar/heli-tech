@@ -109,8 +109,9 @@ func New(
 	{
 		paymentRoutes := securedV1.Group("/payment")
 		{
-			router.AddRoute(paymentRoutes, http.MethodPost, "/withdraw", "withdraw", contentHandler.CreateChannel)
-			router.AddRoute(paymentRoutes, http.MethodPost, "/withdraw", "deposit", contentHandler.CreateChannel)
+			//TODO: handle these routes later
+			router.AddRoute(paymentRoutes, http.MethodPost, "/withdraw", "withdraw", userHandler.Register)
+			router.AddRoute(paymentRoutes, http.MethodPost, "/deposit", "deposit", userHandler.Register)
 		}
 	}
 	router.Handler = r

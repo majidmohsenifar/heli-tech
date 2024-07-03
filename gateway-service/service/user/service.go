@@ -18,7 +18,14 @@ type RegisterParams struct {
 	ConfirmPassword string `json:"confrimPassword" validate:"required"`
 }
 
-type RegisterResponse struct{}
+type LoginParams struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
 
 type UserData struct {
 	ID    int64
@@ -41,6 +48,25 @@ func (s *Service) Register(
 		return err
 	}
 	return nil
+}
+
+func (s *Service) Login(
+	ctx context.Context,
+	params LoginParams,
+) (LoginResponse, error) {
+	result, err := s.userClient.Login(
+		ctx,
+		&userpb.LoginRequest{
+			Email:    params.Email,
+			Password: params.Password,
+		},
+	)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+	return LoginResponse{
+		Token: result.Token,
+	}, nil
 }
 
 func (s *Service) GetUserData(
