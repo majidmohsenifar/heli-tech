@@ -1,0 +1,73 @@
+definitions:
+  api.ErrorCode:
+    properties:
+      code:
+        example: 404
+        type: integer
+      message:
+        example: item not find
+        type: string
+    type: object
+  api.ResponseFailure:
+    properties:
+      error:
+        $ref: '#/definitions/api.ErrorCode'
+      success:
+        example: false
+        type: boolean
+    type: object
+  api.ResponseSuccess:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  user.RegisterParams:
+    type: object
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: allows user to register
+      operationId: register
+      parameters:
+      - description: Register-Params
+        in: body
+        name: params
+        schema:
+          $ref: '#/definitions/user.RegisterParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+      security:
+      - ApiKeyAuth: []
+      summary: register user
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
