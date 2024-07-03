@@ -31,6 +31,6 @@ type User struct {
 }
 
 type UsersRole struct {
-	UserID int32
+	UserID int64
 	RoleID int32
 }

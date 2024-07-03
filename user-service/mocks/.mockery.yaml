@@ -1,0 +1,14 @@
+with-expecter: true
+dir: "."
+outpkg: mocks
+packages:
+  git.energy/ting/data-contracts/proto/user:
+    interfaces:
+      UserClient:
+        config:
+          filename: user_client.go
+  git.energy/ting/data-contracts/proto/content:
+    interfaces:
+      ContentClient:
+        config:
+          filename: content_client.go

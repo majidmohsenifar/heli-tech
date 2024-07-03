@@ -9,9 +9,40 @@ import (
 	"context"
 )
 
+const addRoleToUser = `-- name: AddRoleToUser :exec
+INSERT INTO users_roles (
+    user_id,
+    role_id
+) VALUES (
+  $1, $2 
+)
+`
+
+type AddRoleToUserParams struct {
+	UserID int64
+	RoleID int32
+}
+
+func (q *Queries) AddRoleToUser(ctx context.Context, db DBTX, arg AddRoleToUserParams) error {
+	_, err := db.Exec(ctx, addRoleToUser, arg.UserID, arg.RoleID)
+	return err
+}
+
+const getRoleByCode = `-- name: GetRoleByCode :one
+SELECT id, code FROM roles 
+WHERE code = $1
+`
+
+func (q *Queries) GetRoleByCode(ctx context.Context, db DBTX, code string) (Role, error) {
+	row := db.QueryRow(ctx, getRoleByCode, code)
+	var i Role
+	err := row.Scan(&i.ID, &i.Code)
+	return i, err
+}
+
 const getRouteByPath = `-- name: GetRouteByPath :one
 SELECT id, path, description FROM routes
-WHERE path = $1 LIMIT 1
+WHERE path = $1
 `
 
 func (q *Queries) GetRouteByPath(ctx context.Context, db DBTX, path string) (Route, error) {

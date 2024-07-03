@@ -29,3 +29,15 @@ func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams)
 	err := row.Scan(&i.ID, &i.Email, &i.Password)
 	return i, err
 }
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, password FROM users
+WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error) {
+	row := db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(&i.ID, &i.Email, &i.Password)
+	return i, err
+}
