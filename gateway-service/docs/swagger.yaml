@@ -26,6 +26,17 @@ definitions:
         type: boolean
     type: object
   user.RegisterParams:
+    properties:
+      confrimPassword:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - confrimPassword
+    - email
+    - password
     type: object
 info:
   contact: {}
@@ -33,6 +44,38 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: allows user to login
+      operationId: login
+      parameters:
+      - description: Register-Params
+        in: body
+        name: params
+        schema:
+          $ref: '#/definitions/user.RegisterParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+      security:
+      - ApiKeyAuth: []
+      summary: login user
+      tags:
+      - User
   /api/v1/auth/register:
     post:
       consumes:

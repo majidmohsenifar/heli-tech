@@ -62,14 +62,14 @@ func (r *Router) AddRoute(
 	return nil
 }
 
-// @license.name				Apache 2.0
-// @license.url					http://www.apache.org/licenses/LICENSE-2.0.html
-// @securityDefinitions.apikey  ApiKeyAuth
-// @in 							header
-// @name 						Authorization
-// @query.collection.format 	multi
-// @externalDocs.description  	OpenAPI
-// @externalDocs.url          	https://swagger.io/resources/open-api/
+//	@license.name				Apache 2.0
+//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@query.collection.format	multi
+//	@externalDocs.description	OpenAPI
+//	@externalDocs.url			https://swagger.io/resources/open-api/
 func New(
 	userHandler *api.UserHandler,
 	userService *user.Service,
