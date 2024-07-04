@@ -7,7 +7,6 @@ import (
 	"log/slog"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/majidmohsenifar/heli-tech/user-service/core"
 	"github.com/majidmohsenifar/heli-tech/user-service/repository"
 	"github.com/majidmohsenifar/heli-tech/user-service/service/jwt"
@@ -20,8 +19,8 @@ var (
 )
 
 type Service struct {
-	db               *pgxpool.Pool
-	repo             *repository.Queries
+	db               core.PgxInterface
+	repo             repository.Querier
 	passwordEncoder  *core.PasswordEncoder
 	jwtService       *jwt.Service
 	logger           *slog.Logger
@@ -60,7 +59,7 @@ func (s *Service) Register(ctx context.Context, params RegisterParams) error {
 	encodedPasswordBytes, err := s.passwordEncoder.GenerateFromPassword(params.Password)
 	if err != nil {
 		s.logger.Error("cannot generate password", err)
-		return fmt.Errorf("something went wrong")
+		return fmt.Errorf("cannot hash the password")
 	}
 
 	//get the default role
@@ -148,8 +147,8 @@ func (s *Service) GetUserDataByToken(ctx context.Context, params GetUserDataByTo
 }
 
 func NewService(
-	db *pgxpool.Pool,
-	repo *repository.Queries,
+	db core.PgxInterface,
+	repo repository.Querier,
 	passwordEncoder *core.PasswordEncoder,
 	jwtService *jwt.Service,
 	logger *slog.Logger,

@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/majidmohsenifar/heli-tech/user-service/core"
 	"github.com/majidmohsenifar/heli-tech/user-service/repository"
 )
 
@@ -12,8 +12,8 @@ const (
 )
 
 type RoleRouteManager struct {
-	db   *pgxpool.Pool
-	repo *repository.Queries
+	db   core.PgxInterface
+	repo repository.Querier
 }
 
 func (m *RoleRouteManager) GetRoleByCode(ctx context.Context, code string) (repository.Role, error) {
@@ -21,8 +21,8 @@ func (m *RoleRouteManager) GetRoleByCode(ctx context.Context, code string) (repo
 }
 
 func NewRoleRouteManager(
-	db *pgxpool.Pool,
-	repo *repository.Queries,
+	db core.PgxInterface,
+	repo repository.Querier,
 ) *RoleRouteManager {
 	return &RoleRouteManager{
 		db:   db,
