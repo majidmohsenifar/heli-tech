@@ -2,7 +2,7 @@ db:
   dsn: "postgres://postgres:postgres@db:5432/user_db?sslmode=disable"
 
 jwt:
-  privatekey: "config/jwt/private.pem"
-  publickey: "config/jwt/public.pem"
+  privatekey: "../../config/jwt/private.pem"
+  publickey: "../../config/jwt/public.pem"
   passphrase: "123456789Ab."
   ttl: 720 # based on minutes, now 12 hours

@@ -6,11 +6,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/majidmohsenifar/heli-tech/user-service/config"
 	"github.com/majidmohsenifar/heli-tech/user-service/core"
 	"github.com/majidmohsenifar/heli-tech/user-service/logger"
 	"github.com/majidmohsenifar/heli-tech/user-service/mocks"
 	"github.com/majidmohsenifar/heli-tech/user-service/repository"
 	"github.com/majidmohsenifar/heli-tech/user-service/service/auth"
+	"github.com/majidmohsenifar/heli-tech/user-service/service/jwt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
@@ -18,7 +20,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestService_Register_UsernameAlreadyExist(t *testing.T) {
+func TestService_Register_EmailAlreadyExist(t *testing.T) {
 	assert := assert.New(t)
 	repo := new(mocks.MockQuerier)
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, nil)
@@ -240,5 +242,81 @@ func TestService_Register_Successful(t *testing.T) {
 		Password: "123456789",
 	})
 	assert.Nil(err)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Login_EmailDoesNotExit(t *testing.T) {
+	assert := assert.New(t)
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
+	passwordEncoder := core.NewPasswordEncoder()
+	logger := logger.NewLogger()
+	authService := auth.NewService(
+		nil,
+		repo,
+		passwordEncoder,
+		nil,
+		logger,
+		nil,
+	)
+	token, err := authService.Login(context.Background(), auth.LoginParams{
+		Email:    "test@test.com",
+		Password: "123456789",
+	})
+	assert.Equal(token, "")
+	assert.Equal(err, auth.ErrInvalidUsernameOrPassword)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Login_InvalidPassword(t *testing.T) {
+	assert := assert.New(t)
+	repo := new(mocks.MockQuerier)
+	passwordEncoder := core.NewPasswordEncoder()
+	hashedPass, err := passwordEncoder.GenerateFromPassword("otherpassword")
+	assert.Nil(err)
+	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1, Password: string(hashedPass)}, nil)
+	logger := logger.NewLogger()
+	authService := auth.NewService(
+		nil,
+		repo,
+		passwordEncoder,
+		nil,
+		logger,
+		nil,
+	)
+	token, err := authService.Login(context.Background(), auth.LoginParams{
+		Email:    "test@test.com",
+		Password: "123456789",
+	})
+	assert.Equal(err, auth.ErrInvalidUsernameOrPassword)
+	assert.Equal(token, "")
+	repo.AssertExpectations(t)
+}
+
+func TestService_Login_Successful(t *testing.T) {
+	assert := assert.New(t)
+	repo := new(mocks.MockQuerier)
+	passwordEncoder := core.NewPasswordEncoder()
+	hashedPass, err := passwordEncoder.GenerateFromPassword("123456789")
+	assert.Nil(err)
+	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1, Password: string(hashedPass)}, nil)
+	viper := config.NewViper()
+	jwtService, err := jwt.NewService(viper)
+	assert.Nil(err)
+	logger := logger.NewLogger()
+	authService := auth.NewService(
+		nil,
+		repo,
+		passwordEncoder,
+		jwtService,
+		logger,
+		nil,
+	)
+	token, err := authService.Login(context.Background(), auth.LoginParams{
+		Email:    "test@test.com",
+		Password: "123456789",
+	})
+	assert.Nil(err)
+	assert.NotEqual(token, "")
 	repo.AssertExpectations(t)
 }

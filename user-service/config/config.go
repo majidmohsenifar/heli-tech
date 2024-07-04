@@ -12,7 +12,7 @@ const FileName = "config"
 const FilePath = "./config/"
 
 // since viper does not accept absolute path  we have this relative path for our functional test
-const TestConfigFilePath = "./../config/"
+const TestConfigFilePath = "./../../config/"
 
 func NewViper() *viper.Viper {
 	v := viper.New()

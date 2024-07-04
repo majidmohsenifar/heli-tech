@@ -47,6 +47,7 @@ func (s *Service) GetUsernameFromToken(signedToken string) (string, error) {
 
 func NewService(viper *viper.Viper) (*Service, error) {
 	privateKeyPath := viper.GetString("jwt.privatekey")
+	fmt.Println("privateKeyPath", privateKeyPath)
 	privateKey, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, err
