@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
@@ -23,6 +24,15 @@ func (s *Service) GenerateToken(username string) (string, error) {
 		return "", err
 	}
 	t := jwt.New(jwt.SigningMethodRS256)
+	t.Claims = jwt.RegisteredClaims{
+		Issuer:    "heli-tech",
+		Subject:   username,
+		Audience:  []string{"heli-tech.test"},
+		ExpiresAt: &jwt.NumericDate{Time: time.Now().Add(time.Duration(s.ttl) * time.Minute)},
+		NotBefore: &jwt.NumericDate{},
+		IssuedAt:  &jwt.NumericDate{Time: time.Now()},
+		ID:        "",
+	}
 	return t.SignedString(rsaPrivateKey)
 }
 
@@ -39,7 +49,6 @@ func (s *Service) GetUsernameFromToken(signedToken string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		//TODO: check if this is true
 		return claims["sub"].(string), nil
 	}
 	return "", errors.New("invalid token")
@@ -47,7 +56,6 @@ func (s *Service) GetUsernameFromToken(signedToken string) (string, error) {
 
 func NewService(viper *viper.Viper) (*Service, error) {
 	privateKeyPath := viper.GetString("jwt.privatekey")
-	fmt.Println("privateKeyPath", privateKeyPath)
 	privateKey, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, err

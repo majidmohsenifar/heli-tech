@@ -15,6 +15,7 @@ import (
 var (
 	ErrEmailAlreadyExist         = errors.New("email already exist")
 	ErrInvalidUsernameOrPassword = errors.New("invalid username or password")
+	ErrInvalidToken              = errors.New("invalid token")
 	ErrAccessDenied              = errors.New("access denied")
 )
 
@@ -130,14 +131,14 @@ func (s *Service) GetUserDataByToken(ctx context.Context, params GetUserDataByTo
 	//TODO: we should check path here too for user access
 	email, err := s.jwtService.GetUsernameFromToken(params.Token)
 	if err != nil {
-		return GetUserDataByTokenResponse{}, err
+		return GetUserDataByTokenResponse{}, ErrInvalidToken
 	}
 	user, err := s.repo.GetUserByEmail(ctx, s.db, email)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		s.logger.Error("cannot get user by email", err)
 		return GetUserDataByTokenResponse{}, fmt.Errorf("something went wrong")
 	}
-	if err != pgx.ErrNoRows {
+	if err == pgx.ErrNoRows {
 		return GetUserDataByTokenResponse{}, ErrAccessDenied
 	}
 	return GetUserDataByTokenResponse{

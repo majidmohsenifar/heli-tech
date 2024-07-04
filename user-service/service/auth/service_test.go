@@ -320,3 +320,52 @@ func TestService_Login_Successful(t *testing.T) {
 	assert.NotEqual(token, "")
 	repo.AssertExpectations(t)
 }
+
+func TestService_GetUserDataByToken_InvalidToken(t *testing.T) {
+	assert := assert.New(t)
+	repo := new(mocks.MockQuerier)
+	passwordEncoder := core.NewPasswordEncoder()
+	viper := config.NewViper()
+	jwtService, err := jwt.NewService(viper)
+	logger := logger.NewLogger()
+	authService := auth.NewService(
+		nil,
+		repo,
+		passwordEncoder,
+		jwtService,
+		logger,
+		nil,
+	)
+	_, err = authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
+		Token: "invalid",
+	})
+	assert.Equal(err, auth.ErrInvalidToken)
+}
+
+func TestService_GetUserDataByToken_Successful(t *testing.T) {
+	assert := assert.New(t)
+	repo := new(mocks.MockQuerier)
+	passwordEncoder := core.NewPasswordEncoder()
+	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1}, nil)
+	logger := logger.NewLogger()
+	viper := config.NewViper()
+	jwtService, err := jwt.NewService(viper)
+	assert.Nil(err)
+	token, err := jwtService.GenerateToken("test@test.com")
+	assert.Nil(err)
+	authService := auth.NewService(
+		nil,
+		repo,
+		passwordEncoder,
+		jwtService,
+		logger,
+		nil,
+	)
+	userData, err := authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
+		Token: token,
+	})
+	assert.Nil(err)
+	assert.Equal(userData.Email, "test@test.com")
+	assert.Equal(userData.ID, int64(1))
+	repo.AssertExpectations(t)
+}
