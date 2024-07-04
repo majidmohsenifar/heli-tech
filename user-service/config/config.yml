@@ -1,5 +1,5 @@
 db:
-  dsn: "postgres://postgres:postgres@db:5432/user_db?sslmode=disable"
+  dsn: "postgres://postgres:postgres@user-db:5432/user_db?sslmode=disable"
 
 jwt:
   privatekey: "../../config/jwt/private.pem"

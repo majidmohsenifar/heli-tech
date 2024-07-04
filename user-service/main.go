@@ -26,7 +26,7 @@ const (
 )
 
 func main() {
-	viper := config.NewViper()
+	viper := config.NewViper("./config/")
 	logger := logger.NewLogger()
 	dbClient, err := core.NewDBClient()
 	if err != nil {

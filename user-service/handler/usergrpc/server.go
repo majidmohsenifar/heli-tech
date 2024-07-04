@@ -27,19 +27,21 @@ func (s *server) Register(
 	if err != nil {
 		return nil, status.Error(codes.Code(400), "invalid email")
 	}
-	if req.Password != req.ConfirmPassword {
-		return nil, status.Error(codes.Code(400), "password and confirm password are not the same")
-	}
-	if strings.EqualFold(strings.Trim(req.Password, " "), "") {
+	password := strings.Trim(req.Password, " ")
+	confirmPassword := strings.Trim(req.ConfirmPassword, " ")
+	if strings.EqualFold(password, "") {
 		return nil, status.Error(codes.Code(400), "password is empty")
 	}
-	if strings.EqualFold(strings.Trim(req.ConfirmPassword, " "), "") {
+	if strings.EqualFold(confirmPassword, "") {
 		return nil, status.Error(codes.Code(400), "confirmPassword is empty")
+	}
+	if password != confirmPassword {
+		return nil, status.Error(codes.Code(400), "password and confirmPassword are not the same")
 	}
 
 	err = s.authService.Register(ctx, auth.RegisterParams{
 		Email:    req.Email,
-		Password: req.Password,
+		Password: password,
 	})
 	if err == auth.ErrEmailAlreadyExist {
 		return nil, status.Error(codes.Code(423), err.Error())

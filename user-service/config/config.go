@@ -9,22 +9,24 @@ import (
 )
 
 const FileName = "config"
-const FilePath = "./config/"
+
+
+//const FilePath = "./config/"
 
 // since viper does not accept absolute path  we have this relative path for our functional test
-const TestConfigFilePath = "./../../config/"
+//const TestConfigFilePath = "./../../config/"
 
-func NewViper() *viper.Viper {
+func NewViper(configFilePath string) *viper.Viper {
 	v := viper.New()
 
 	v.SetConfigType("yml")
 	v.SetConfigName(FileName)
-
-	if !isTestEnv() {
-		v.AddConfigPath(FilePath)
-	} else {
-		v.AddConfigPath(TestConfigFilePath)
-	}
+	v.AddConfigPath(configFilePath)
+//if !isTestEnv() {
+	//v.AddConfigPath(FilePath)
+//} else {
+	//v.AddConfigPath(TestConfigFilePath)
+	//}
 
 	err := v.ReadInConfig()
 	if err != nil {
