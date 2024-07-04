@@ -76,8 +76,7 @@ func (s *server) Login(
 	if err != nil {
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}
-	resp.Token = token
-	return resp, nil
+	return &userpb.LoginResponse{Token: token}, nil
 }
 
 func (s *server) GetUserDataByToken(

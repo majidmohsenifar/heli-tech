@@ -10,10 +10,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/majidmohsenifar/heli-tech/user-service/config"
 	"github.com/majidmohsenifar/heli-tech/user-service/logger"
+	"github.com/spf13/viper"
 )
 
 var loggerService *slog.Logger
 var mainDB *pgxpool.Pool
+var viperConfig *viper.Viper
 
 var Seeders = map[string]func(ctx context.Context, db *pgxpool.Pool){}
 
@@ -55,11 +57,21 @@ func getLogger() *slog.Logger {
 	return loggerService
 }
 
+func getViperConfig() *viper.Viper {
+	if viperConfig != nil {
+		return viperConfig
+	}
+	viperConfig = config.NewViper("../config/")
+	viperConfig.Set("jwt.privatekey", "../config/jwt/private.pem")
+	viperConfig.Set("jwt.publickey", "../config/jwt/public.pem")
+	return viperConfig
+}
+
 func getDB() *pgxpool.Pool {
 	if mainDB != nil {
 		return mainDB
 	}
-	viper := config.NewViper("../config/")
+	viper := getViperConfig()
 	dbPool, err := pgxpool.New(context.Background(), viper.GetString("db.dsn"))
 	if err != nil {
 		panic("can not establish connection to database")
