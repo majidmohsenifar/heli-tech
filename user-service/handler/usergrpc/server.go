@@ -49,8 +49,7 @@ func (s *server) Register(
 	if err != nil {
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}
-	resp.Ok = true
-	return resp, nil
+	return &userpb.RegisterResponse{Ok: true}, nil
 }
 
 func (s *server) Login(

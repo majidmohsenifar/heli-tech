@@ -10,10 +10,12 @@ import (
 
 type Querier interface {
 	AddRoleToUser(ctx context.Context, db DBTX, arg AddRoleToUserParams) error
+	CreateRole(ctx context.Context, db DBTX, code string) (Role, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
 	GetRoleByCode(ctx context.Context, db DBTX, code string) (Role, error)
 	GetRouteByPath(ctx context.Context, db DBTX, path string) (Route, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
+	GetUserRolesByUserID(ctx context.Context, db DBTX, userID int64) ([]UsersRole, error)
 }
 
 var _ Querier = (*Queries)(nil)

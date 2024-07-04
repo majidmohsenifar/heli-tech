@@ -13,3 +13,15 @@ INSERT INTO users_roles (
 -- name: GetRoleByCode :one
 SELECT * FROM roles 
 WHERE code = $1;
+
+
+-- name: CreateRole :one
+INSERT INTO roles (
+    code
+) VALUES (
+  $1 
+) RETURNING *;
+
+-- name: GetUserRolesByUserID :many
+SELECT * FROM users_roles 
+WHERE user_id = $1;

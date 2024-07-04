@@ -28,6 +28,21 @@ func (q *Queries) AddRoleToUser(ctx context.Context, db DBTX, arg AddRoleToUserP
 	return err
 }
 
+const createRole = `-- name: CreateRole :one
+INSERT INTO roles (
+    code
+) VALUES (
+  $1 
+) RETURNING id, code
+`
+
+func (q *Queries) CreateRole(ctx context.Context, db DBTX, code string) (Role, error) {
+	row := db.QueryRow(ctx, createRole, code)
+	var i Role
+	err := row.Scan(&i.ID, &i.Code)
+	return i, err
+}
+
 const getRoleByCode = `-- name: GetRoleByCode :one
 SELECT id, code FROM roles 
 WHERE code = $1
@@ -50,4 +65,29 @@ func (q *Queries) GetRouteByPath(ctx context.Context, db DBTX, path string) (Rou
 	var i Route
 	err := row.Scan(&i.ID, &i.Path, &i.Description)
 	return i, err
+}
+
+const getUserRolesByUserID = `-- name: GetUserRolesByUserID :many
+SELECT user_id, role_id FROM users_roles 
+WHERE user_id = $1
+`
+
+func (q *Queries) GetUserRolesByUserID(ctx context.Context, db DBTX, userID int64) ([]UsersRole, error) {
+	rows, err := db.Query(ctx, getUserRolesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UsersRole
+	for rows.Next() {
+		var i UsersRole
+		if err := rows.Scan(&i.UserID, &i.RoleID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
