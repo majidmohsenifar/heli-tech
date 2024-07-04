@@ -101,7 +101,10 @@ func (s *server) GetUserDataByToken(
 	}
 	resp.Email = result.Email
 	resp.Id = result.ID
-	return resp, err
+	return &userpb.GetUserDataByTokenResponse{
+		Id:    result.ID,
+		Email: result.Email,
+	}, nil
 }
 
 func NewServer(
