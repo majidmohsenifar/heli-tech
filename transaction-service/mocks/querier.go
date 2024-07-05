@@ -184,6 +184,60 @@ func (_c *MockQuerier_CreateUserBalanceOrIncreaseAmount_Call) RunAndReturn(run f
 	return _c
 }
 
+// GetUserBalanceByUserID provides a mock function with given fields: ctx, db, userID
+func (_m *MockQuerier) GetUserBalanceByUserID(ctx context.Context, db repository.DBTX, userID int64) (repository.UserBalance, error) {
+	ret := _m.Called(ctx, db, userID)
+
+	var r0 repository.UserBalance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, int64) (repository.UserBalance, error)); ok {
+		return rf(ctx, db, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, int64) repository.UserBalance); ok {
+		r0 = rf(ctx, db, userID)
+	} else {
+		r0 = ret.Get(0).(repository.UserBalance)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, repository.DBTX, int64) error); ok {
+		r1 = rf(ctx, db, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUserBalanceByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserBalanceByUserID'
+type MockQuerier_GetUserBalanceByUserID_Call struct {
+	*mock.Call
+}
+
+// GetUserBalanceByUserID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db repository.DBTX
+//   - userID int64
+func (_e *MockQuerier_Expecter) GetUserBalanceByUserID(ctx interface{}, db interface{}, userID interface{}) *MockQuerier_GetUserBalanceByUserID_Call {
+	return &MockQuerier_GetUserBalanceByUserID_Call{Call: _e.mock.On("GetUserBalanceByUserID", ctx, db, userID)}
+}
+
+func (_c *MockQuerier_GetUserBalanceByUserID_Call) Run(run func(ctx context.Context, db repository.DBTX, userID int64)) *MockQuerier_GetUserBalanceByUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repository.DBTX), args[2].(int64))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUserBalanceByUserID_Call) Return(_a0 repository.UserBalance, _a1 error) *MockQuerier_GetUserBalanceByUserID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUserBalanceByUserID_Call) RunAndReturn(run func(context.Context, repository.DBTX, int64) (repository.UserBalance, error)) *MockQuerier_GetUserBalanceByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockQuerier creates a new instance of MockQuerier. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockQuerier(t interface {

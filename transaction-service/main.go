@@ -43,17 +43,16 @@ func main() {
 	}
 	defer redisClient.Close()
 
-	viper.GetStringSlice("kafka.urls")
-	kafkaReaderBuilder := client.NewKafkaReaderBuilder(config.KafkaURLs(), "", 100000)
-
-
-
+	kafkaURLs := viper.GetStringSlice("kafka.urls")
+	kafkaWriter := core.NewKafkaWriter(kafkaURLs, "")
+	transactionEventManager := transaction.NewTransactionEventManager(kafkaWriter, logger)
 	redisLocker := core.NewRedisLocker(redisClient)
 	transactionService := transaction.NewService(
 		dbClient,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	grpcPanicRecoveryHandler := func(p any) error {
 		err := errors.New("recovered from panic")

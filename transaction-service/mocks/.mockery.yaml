@@ -8,3 +8,8 @@ packages:
       Querier:
         config:
           filename: querier.go
+  github.com/majidmohsenifar/heli-tech/transaction-service/service/transaction:
+    interfaces:
+      TransactionEventManager:
+        config:
+          filename: transaction_event_manager.go

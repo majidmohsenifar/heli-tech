@@ -25,7 +25,7 @@ type Service struct {
 	repo         repository.Querier
 	redisLocker  *redislock.Client
 	logger       *slog.Logger
-	eventManager *TransactionEventManager
+	eventManager TransactionEventManager
 }
 
 type WithdrawParams struct {
@@ -119,7 +119,7 @@ func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (Transact
 	s.eventManager.PublishTransactionCreatedEvent(ctx, TransactionCreatedEventParams{
 		UserID:        tx.UserID,
 		TransactionID: tx.ID,
-		Type:          string(tx.Kind),
+		Kind:          string(tx.Kind),
 		Amount:        params.Amount,
 		Balance:       newBalance,
 		CreatedAt:     tx.CreatedAt.Time.Unix(),
@@ -189,7 +189,7 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 	s.eventManager.PublishTransactionCreatedEvent(ctx, TransactionCreatedEventParams{
 		UserID:        tx.UserID,
 		TransactionID: tx.ID,
-		Type:          string(tx.Kind),
+		Kind:          string(tx.Kind),
 		Amount:        params.Amount,
 		Balance:       newBalance,
 		CreatedAt:     tx.CreatedAt.Time.Unix(),
@@ -206,7 +206,7 @@ func NewService(
 	repo repository.Querier,
 	redisLocker *redislock.Client,
 	logger *slog.Logger,
-	eventManager *TransactionEventManager,
+	eventManager TransactionEventManager,
 
 ) *Service {
 	return &Service{

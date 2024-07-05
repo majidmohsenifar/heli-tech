@@ -37,11 +37,13 @@ func TestService_Withdraw_CannotObtainLock(t *testing.T) {
 	//first we try to obtain lock so the logic would encounter error
 	lock, err := redisLocker.Obtain(ctx, fmt.Sprintf("transaction:%d", 1), time.Duration(30*time.Second), nil)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
 		UserID: 1,
@@ -89,11 +91,13 @@ func TestService_Withdraw_CannotCreateTransaction(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
 		UserID: 1,
@@ -159,11 +163,13 @@ func TestService_Withdraw_CannotInsertOrIncreaseUserBalance(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
 		UserID: 1,
@@ -229,11 +235,13 @@ func TestService_Withdraw_Successful(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	res, err := transactionService.Withdraw(ctx, transaction.WithdrawParams{
 		UserID: 1,
@@ -261,11 +269,13 @@ func TestService_Deposit_CannotObtainLock(t *testing.T) {
 	//first we try to obtain lock so the logic would encounter error
 	lock, err := redisLocker.Obtain(ctx, fmt.Sprintf("transaction:%d", 1), time.Duration(30*time.Second), nil)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
 		UserID: 1,
@@ -313,11 +323,13 @@ func TestService_Deposit_CannotCreateTransaction(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
 		UserID: 1,
@@ -383,11 +395,13 @@ func TestService_Deposit_CannotInsertOrIncreaseUserBalance(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
 		UserID: 1,
@@ -453,11 +467,13 @@ func TestService_Deposit_Successful(t *testing.T) {
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
 		redisLocker,
 		logger,
+		transactionEventManager,
 	)
 	res, err := transactionService.Deposit(ctx, transaction.DepositParams{
 		UserID: 1,
