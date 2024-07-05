@@ -12,11 +12,24 @@ type server struct {
 	transactionpb.UnimplementedTransactionServer
 }
 
-func (s *server) CreateTransaction(
+func (s *server) Withdraw(
 	ctx context.Context,
-	req *transactionpb.CreateTransactionRequest,
-) (*transactionpb.CreateTransactionResponse, error) {
+	req *transactionpb.WithdrawRequest,
+) (*transactionpb.WithdrawResponse, error) {
 	panic("not implemented") // TODO: Implement
+}
+
+func (s *server) Deposit(
+	ctx context.Context,
+	req *transactionpb.DepositRequest,
+) (*transactionpb.DepositResponse, error) {
+	panic("not implemented") // TODO: Implement
+	//TODO: validate req params
+
+	//result, err := s.transactionService.Deposit(transaction.DepositParams{
+	//UserID: req.UserID,
+	//Amount: float64(req.Amount),
+	//})
 }
 
 func NewServer(

@@ -16,13 +16,25 @@ type Service struct {
 	logger *slog.Logger
 }
 
-type CreateTransactionParams struct {
+type WithdrawParams struct {
 	UserID int64
 	Amount float64
-	Kind   repository.Kind
 }
 
-func (s *Service) CreateTransaction(ctx context.Context, params CreateTransactionParams) error {
+type TransactionDetail struct {
+}
+
+type DepositParams struct {
+	UserID int64
+	Amount float64
+}
+
+func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (TransactionDetail, error) {
+	//TODO: we should use lock here
+	panic("here we go")
+}
+
+func (s *Service) Deposit(ctx context.Context, params DepositParams) (TransactionDetail, error) {
 	panic("here we go")
 }
 

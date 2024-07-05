@@ -30,6 +30,8 @@ github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240703145439-331d95
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240703145439-331d95923581/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705093358-fdf8c61f27b6 h1:TXJUDE3YMeaTwYvkkcyHQFm85nlQ5plru3BSAoBN3Ao=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705093358-fdf8c61f27b6/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705094602-35ef52c9f9ca h1:ZFo+/gQvQQH/pJRrDCTCnMdZTSGKfiCeHoCcDI96hBY=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705094602-35ef52c9f9ca/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
