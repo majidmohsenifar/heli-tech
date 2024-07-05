@@ -36,12 +36,19 @@ func main() {
 	}
 	defer dbClient.Close()
 	repo := repository.New()
+	redisClient, err := core.NewRedisClient(viper.GetString("redis.dsn"))
+	if err != nil {
+		logger.Error("failed to initiate a redis client", err)
+		os.Exit(1)
+	}
+	defer redisClient.Close()
+	redisLocker := core.NewRedisLocker(redisClient)
 	transactionService := transaction.NewService(
 		dbClient,
 		repo,
+		redisLocker,
 		logger,
 	)
-
 	grpcPanicRecoveryHandler := func(p any) error {
 		err := errors.New("recovered from panic")
 		tempErr, ok := p.(error)

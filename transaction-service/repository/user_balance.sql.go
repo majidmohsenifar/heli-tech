@@ -11,23 +11,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createUserBalance = `-- name: CreateUserBalance :one
+const createUserBalanceOrDecreaseAmount = `-- name: CreateUserBalanceOrDecreaseAmount :one
 INSERT INTO user_balances (
     user_id,
     amount,
-    created_at
+    created_at,
+    updated_at
 ) VALUES (
-  $1, $2, now()
-) RETURNING id, user_id, amount, created_at, updated_at
+    $1, $2, now(), now()
+) ON CONFLICT (user_id) DO UPDATE SET amount = user_balances.amount-EXCLUDED.amount,  updated_at = now() 
+RETURNING id, user_id, amount, created_at, updated_at
 `
 
-type CreateUserBalanceParams struct {
+type CreateUserBalanceOrDecreaseAmountParams struct {
 	UserID int64
 	Amount pgtype.Numeric
 }
 
-func (q *Queries) CreateUserBalance(ctx context.Context, db DBTX, arg CreateUserBalanceParams) (UserBalance, error) {
-	row := db.QueryRow(ctx, createUserBalance, arg.UserID, arg.Amount)
+func (q *Queries) CreateUserBalanceOrDecreaseAmount(ctx context.Context, db DBTX, arg CreateUserBalanceOrDecreaseAmountParams) (UserBalance, error) {
+	row := db.QueryRow(ctx, createUserBalanceOrDecreaseAmount, arg.UserID, arg.Amount)
 	var i UserBalance
 	err := row.Scan(
 		&i.ID,
@@ -39,18 +41,32 @@ func (q *Queries) CreateUserBalance(ctx context.Context, db DBTX, arg CreateUser
 	return i, err
 }
 
-const updateUserBalance = `-- name: UpdateUserBalance :exec
-UPDATE user_balances 
-SET amount = $1 
-WHERE user_id = $2
+const createUserBalanceOrIncreaseAmount = `-- name: CreateUserBalanceOrIncreaseAmount :one
+INSERT INTO user_balances (
+    user_id,
+    amount,
+    created_at,
+    updated_at
+) VALUES (
+    $1, $2, now(), now()
+) ON CONFLICT (user_id) DO UPDATE SET amount = user_balances.amount+EXCLUDED.amount,  updated_at = now() 
+RETURNING id, user_id, amount, created_at, updated_at
 `
 
-type UpdateUserBalanceParams struct {
-	Amount pgtype.Numeric
+type CreateUserBalanceOrIncreaseAmountParams struct {
 	UserID int64
+	Amount pgtype.Numeric
 }
 
-func (q *Queries) UpdateUserBalance(ctx context.Context, db DBTX, arg UpdateUserBalanceParams) error {
-	_, err := db.Exec(ctx, updateUserBalance, arg.Amount, arg.UserID)
-	return err
+func (q *Queries) CreateUserBalanceOrIncreaseAmount(ctx context.Context, db DBTX, arg CreateUserBalanceOrIncreaseAmountParams) (UserBalance, error) {
+	row := db.QueryRow(ctx, createUserBalanceOrIncreaseAmount, arg.UserID, arg.Amount)
+	var i UserBalance
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

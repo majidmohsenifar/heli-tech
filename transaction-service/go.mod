@@ -3,16 +3,20 @@ module github.com/majidmohsenifar/heli-tech/transaction-service
 go 1.22.4
 
 require (
+	github.com/bsm/redislock v0.9.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/jackc/pgx/v5 v5.6.0
-	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705094602-35ef52c9f9ca
+	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705115005-25130127a325
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.65.0
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

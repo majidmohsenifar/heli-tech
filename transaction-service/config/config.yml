@@ -1,3 +1,6 @@
 db:
   dsn: "postgres://postgres:postgres@transaction-db:5433/transaction_db?sslmode=disable"
 
+redis:
+  dsn: "redis:6379"
+

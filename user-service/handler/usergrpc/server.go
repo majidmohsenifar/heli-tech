@@ -44,7 +44,7 @@ func (s *server) Register(
 		Password: password,
 	})
 	if err == auth.ErrEmailAlreadyExist {
-		return nil, status.Error(codes.Code(423), err.Error())
+		return nil, status.Error(codes.Code(422), err.Error())
 	}
 	if err != nil {
 		return nil, status.Error(codes.Code(500), "something went wrong")

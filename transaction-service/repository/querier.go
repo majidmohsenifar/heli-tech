@@ -10,8 +10,8 @@ import (
 
 type Querier interface {
 	CreateTransaction(ctx context.Context, db DBTX, arg CreateTransactionParams) (Transaction, error)
-	CreateUserBalance(ctx context.Context, db DBTX, arg CreateUserBalanceParams) (UserBalance, error)
-	UpdateUserBalance(ctx context.Context, db DBTX, arg UpdateUserBalanceParams) error
+	CreateUserBalanceOrDecreaseAmount(ctx context.Context, db DBTX, arg CreateUserBalanceOrDecreaseAmountParams) (UserBalance, error)
+	CreateUserBalanceOrIncreaseAmount(ctx context.Context, db DBTX, arg CreateUserBalanceOrIncreaseAmountParams) (UserBalance, error)
 }
 
 var _ Querier = (*Queries)(nil)
