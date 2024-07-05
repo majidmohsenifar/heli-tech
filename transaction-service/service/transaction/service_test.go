@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/helper"
@@ -51,6 +52,78 @@ func TestService_Withdraw_CannotObtainLock(t *testing.T) {
 	})
 	assert.Equal(err, transaction.ErrOngoingRequest)
 	lock.Release(ctx)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Withdraw_NoBalanceInDB(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserBalanceByUserID(
+		mock.Anything,
+		mock.Anything,
+		int64(1),
+	).Once().Return(repository.UserBalance{}, pgx.ErrNoRows)
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+		transactionEventManager,
+	)
+	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, transaction.ErrInsufficientBalance)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Withdraw_BalanceExistInDB_ButNotSufficient(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserBalanceByUserID(
+		mock.Anything,
+		mock.Anything,
+		int64(1),
+	).Once().Return(repository.UserBalance{Amount: pgtype.Numeric{Int: big.NewInt(50), Valid: true}}, nil)
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+		transactionEventManager,
+	)
+	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, transaction.ErrInsufficientBalance)
 	repo.AssertExpectations(t)
 }
 
