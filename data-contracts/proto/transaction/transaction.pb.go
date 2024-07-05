@@ -20,64 +20,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type TransactionKind int32
-
-const (
-	TransactionKind_WITHDRAW TransactionKind = 0
-	TransactionKind_DEPOSIT  TransactionKind = 1
-)
-
-// Enum value maps for TransactionKind.
-var (
-	TransactionKind_name = map[int32]string{
-		0: "WITHDRAW",
-		1: "DEPOSIT",
-	}
-	TransactionKind_value = map[string]int32{
-		"WITHDRAW": 0,
-		"DEPOSIT":  1,
-	}
-)
-
-func (x TransactionKind) Enum() *TransactionKind {
-	p := new(TransactionKind)
-	*p = x
-	return p
-}
-
-func (x TransactionKind) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (TransactionKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_transaction_proto_enumTypes[0].Descriptor()
-}
-
-func (TransactionKind) Type() protoreflect.EnumType {
-	return &file_transaction_proto_enumTypes[0]
-}
-
-func (x TransactionKind) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use TransactionKind.Descriptor instead.
-func (TransactionKind) EnumDescriptor() ([]byte, []int) {
-	return file_transaction_proto_rawDescGZIP(), []int{0}
-}
-
-type CreateTransactionRequest struct {
+type WithdrawRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserID int64           `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
-	Amount float32         `protobuf:"fixed32,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	Kind   TransactionKind `protobuf:"varint,3,opt,name=kind,proto3,enum=transaction.TransactionKind" json:"kind,omitempty"`
+	UserID int64   `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	Amount float32 `protobuf:"fixed32,2,opt,name=amount,proto3" json:"amount,omitempty"`
 }
 
-func (x *CreateTransactionRequest) Reset() {
-	*x = CreateTransactionRequest{}
+func (x *WithdrawRequest) Reset() {
+	*x = WithdrawRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_transaction_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -85,13 +38,13 @@ func (x *CreateTransactionRequest) Reset() {
 	}
 }
 
-func (x *CreateTransactionRequest) String() string {
+func (x *WithdrawRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTransactionRequest) ProtoMessage() {}
+func (*WithdrawRequest) ProtoMessage() {}
 
-func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
+func (x *WithdrawRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_transaction_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -103,33 +56,26 @@ func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTransactionRequest.ProtoReflect.Descriptor instead.
-func (*CreateTransactionRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use WithdrawRequest.ProtoReflect.Descriptor instead.
+func (*WithdrawRequest) Descriptor() ([]byte, []int) {
 	return file_transaction_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateTransactionRequest) GetUserID() int64 {
+func (x *WithdrawRequest) GetUserID() int64 {
 	if x != nil {
 		return x.UserID
 	}
 	return 0
 }
 
-func (x *CreateTransactionRequest) GetAmount() float32 {
+func (x *WithdrawRequest) GetAmount() float32 {
 	if x != nil {
 		return x.Amount
 	}
 	return 0
 }
 
-func (x *CreateTransactionRequest) GetKind() TransactionKind {
-	if x != nil {
-		return x.Kind
-	}
-	return TransactionKind_WITHDRAW
-}
-
-type CreateTransactionResponse struct {
+type WithdrawResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -137,8 +83,8 @@ type CreateTransactionResponse struct {
 	Ok bool `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
 }
 
-func (x *CreateTransactionResponse) Reset() {
-	*x = CreateTransactionResponse{}
+func (x *WithdrawResponse) Reset() {
+	*x = WithdrawResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_transaction_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -146,13 +92,13 @@ func (x *CreateTransactionResponse) Reset() {
 	}
 }
 
-func (x *CreateTransactionResponse) String() string {
+func (x *WithdrawResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateTransactionResponse) ProtoMessage() {}
+func (*WithdrawResponse) ProtoMessage() {}
 
-func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
+func (x *WithdrawResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_transaction_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -164,12 +110,114 @@ func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateTransactionResponse.ProtoReflect.Descriptor instead.
-func (*CreateTransactionResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use WithdrawResponse.ProtoReflect.Descriptor instead.
+func (*WithdrawResponse) Descriptor() ([]byte, []int) {
 	return file_transaction_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateTransactionResponse) GetOk() bool {
+func (x *WithdrawResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+type DepositRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	UserID int64   `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	Amount float32 `protobuf:"fixed32,2,opt,name=amount,proto3" json:"amount,omitempty"`
+}
+
+func (x *DepositRequest) Reset() {
+	*x = DepositRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_transaction_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DepositRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DepositRequest) ProtoMessage() {}
+
+func (x *DepositRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_transaction_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DepositRequest.ProtoReflect.Descriptor instead.
+func (*DepositRequest) Descriptor() ([]byte, []int) {
+	return file_transaction_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DepositRequest) GetUserID() int64 {
+	if x != nil {
+		return x.UserID
+	}
+	return 0
+}
+
+func (x *DepositRequest) GetAmount() float32 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+type DepositResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Ok bool `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+}
+
+func (x *DepositResponse) Reset() {
+	*x = DepositResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_transaction_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DepositResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DepositResponse) ProtoMessage() {}
+
+func (x *DepositResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_transaction_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DepositResponse.ProtoReflect.Descriptor instead.
+func (*DepositResponse) Descriptor() ([]byte, []int) {
+	return file_transaction_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DepositResponse) GetOk() bool {
 	if x != nil {
 		return x.Ok
 	}
@@ -181,29 +229,31 @@ var File_transaction_proto protoreflect.FileDescriptor
 var file_transaction_proto_rawDesc = []byte{
 	0x0a, 0x11, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x12, 0x0b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e,
-	0x22, 0x7c, 0x0a, 0x18, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
-	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06,
-	0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73,
-	0x65, 0x72, 0x49, 0x44, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x02, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x30, 0x0a, 0x04,
-	0x6b, 0x69, 0x6e, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1c, 0x2e, 0x74, 0x72, 0x61,
-	0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x4b, 0x69, 0x6e, 0x64, 0x52, 0x04, 0x6b, 0x69, 0x6e, 0x64, 0x22, 0x2b,
-	0x0a, 0x19, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x6f,
-	0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x02, 0x6f, 0x6b, 0x2a, 0x2c, 0x0a, 0x0f, 0x54,
-	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x4b, 0x69, 0x6e, 0x64, 0x12, 0x0c,
-	0x0a, 0x08, 0x57, 0x49, 0x54, 0x48, 0x44, 0x52, 0x41, 0x57, 0x10, 0x00, 0x12, 0x0b, 0x0a, 0x07,
-	0x44, 0x45, 0x50, 0x4f, 0x53, 0x49, 0x54, 0x10, 0x01, 0x32, 0x71, 0x0a, 0x0b, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x62, 0x0a, 0x11, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x25, 0x2e,
-	0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
-	0x6f, 0x6e, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x19, 0x5a, 0x17,
-	0x2e, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x3b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0x41, 0x0a, 0x0f, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x44, 0x12, 0x16, 0x0a, 0x06, 0x61,
+	0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x06, 0x61, 0x6d, 0x6f,
+	0x75, 0x6e, 0x74, 0x22, 0x22, 0x0a, 0x10, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x6f, 0x6b, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x02, 0x6f, 0x6b, 0x22, 0x40, 0x0a, 0x0e, 0x44, 0x65, 0x70, 0x6f, 0x73,
+	0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x75, 0x73, 0x65,
+	0x72, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49,
+	0x44, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x02, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x21, 0x0a, 0x0f, 0x44, 0x65, 0x70,
+	0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02,
+	0x6f, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x02, 0x6f, 0x6b, 0x32, 0x9c, 0x01, 0x0a,
+	0x0b, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x47, 0x0a, 0x08,
+	0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x12, 0x1c, 0x2e, 0x74, 0x72, 0x61, 0x6e, 0x73,
+	0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x44, 0x0a, 0x07, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
+	0x12, 0x1b, 0x2e, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x44,
+	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e,
+	0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x44, 0x65, 0x70, 0x6f,
+	0x73, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x19, 0x5a, 0x17, 0x2e,
+	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x3b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
+	0x6f, 0x6e, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -218,22 +268,23 @@ func file_transaction_proto_rawDescGZIP() []byte {
 	return file_transaction_proto_rawDescData
 }
 
-var file_transaction_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_transaction_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_transaction_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_transaction_proto_goTypes = []interface{}{
-	(TransactionKind)(0),              // 0: transaction.TransactionKind
-	(*CreateTransactionRequest)(nil),  // 1: transaction.CreateTransactionRequest
-	(*CreateTransactionResponse)(nil), // 2: transaction.CreateTransactionResponse
+	(*WithdrawRequest)(nil),  // 0: transaction.WithdrawRequest
+	(*WithdrawResponse)(nil), // 1: transaction.WithdrawResponse
+	(*DepositRequest)(nil),   // 2: transaction.DepositRequest
+	(*DepositResponse)(nil),  // 3: transaction.DepositResponse
 }
 var file_transaction_proto_depIdxs = []int32{
-	0, // 0: transaction.CreateTransactionRequest.kind:type_name -> transaction.TransactionKind
-	1, // 1: transaction.Transaction.CreateTransaction:input_type -> transaction.CreateTransactionRequest
-	2, // 2: transaction.Transaction.CreateTransaction:output_type -> transaction.CreateTransactionResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: transaction.Transaction.Withdraw:input_type -> transaction.WithdrawRequest
+	2, // 1: transaction.Transaction.Deposit:input_type -> transaction.DepositRequest
+	1, // 2: transaction.Transaction.Withdraw:output_type -> transaction.WithdrawResponse
+	3, // 3: transaction.Transaction.Deposit:output_type -> transaction.DepositResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_transaction_proto_init() }
@@ -243,7 +294,7 @@ func file_transaction_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_transaction_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionRequest); i {
+			switch v := v.(*WithdrawRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -255,7 +306,31 @@ func file_transaction_proto_init() {
 			}
 		}
 		file_transaction_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionResponse); i {
+			switch v := v.(*WithdrawResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_transaction_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DepositRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_transaction_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DepositResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -272,14 +347,13 @@ func file_transaction_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_transaction_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   2,
+			NumEnums:      0,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_transaction_proto_goTypes,
 		DependencyIndexes: file_transaction_proto_depIdxs,
-		EnumInfos:         file_transaction_proto_enumTypes,
 		MessageInfos:      file_transaction_proto_msgTypes,
 	}.Build()
 	File_transaction_proto = out.File

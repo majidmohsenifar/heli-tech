@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/jackc/pgx/v5 v5.6.0
-	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240703145439-331d95923581
+	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240705093358-fdf8c61f27b6
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	google.golang.org/grpc v1.65.0

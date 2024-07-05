@@ -5,22 +5,26 @@ package transaction;
 option go_package = "./proto;transactiongrpc";
 
 service Transaction {
-  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse);
-}
-
-enum TransactionKind {
-  WITHDRAW = 0;
-  DEPOSIT = 1;
+  rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+  rpc Deposit(DepositRequest) returns (DepositResponse);
 }
 
 
-message CreateTransactionRequest {
+message WithdrawRequest {
 	int64 userID = 1;
 	float amount = 2;
-    TransactionKind kind = 3;
 }
 
-message CreateTransactionResponse {
+message WithdrawResponse {
+	bool ok = 1;
+}
+
+message DepositRequest {
+	int64 userID = 1;
+	float amount = 2;
+}
+
+message DepositResponse {
 	bool ok = 1;
 }
 

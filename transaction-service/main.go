@@ -7,9 +7,10 @@ import (
 	"net"
 	"os"
 
-	paymentpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/payment"
+	transactionpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/transaction"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/config"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/handler/transactiongrpc"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/logger"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/repository"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/service/transaction"
@@ -66,7 +67,7 @@ func main() {
 	transactionGrpcServer := transactiongrpc.NewServer(
 		transactionService,
 	)
-	paymentpb.RegisterPaymentServer(grpcServer, transactionGrpcServer)
+	transactionpb.RegisterTransactionServer(grpcServer, transactionGrpcServer)
 	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", grpcPort))
 	if err != nil {
 		logger.Error("can not listen to grpcPort", err)
