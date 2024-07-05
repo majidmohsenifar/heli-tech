@@ -64,6 +64,11 @@ func TestService_Withdraw_CannotCreateTransaction(t *testing.T) {
 	ctx := context.Background()
 
 	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserBalanceByUserID(
+		mock.Anything,
+		mock.Anything,
+		int64(1),
+	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(100), Valid: true}}, nil)
 	repo.EXPECT().CreateTransaction(
 		mock.Anything,
 		mock.Anything,
@@ -117,6 +122,11 @@ func TestService_Withdraw_CannotInsertOrIncreaseUserBalance(t *testing.T) {
 	ctx := context.Background()
 
 	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserBalanceByUserID(
+		mock.Anything,
+		mock.Anything,
+		int64(1),
+	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(100), Valid: true}}, nil)
 	repo.EXPECT().CreateTransaction(
 		mock.Anything,
 		mock.Anything,
@@ -189,6 +199,11 @@ func TestService_Withdraw_Successful(t *testing.T) {
 	ctx := context.Background()
 
 	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserBalanceByUserID(
+		mock.Anything,
+		mock.Anything,
+		int64(1),
+	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(100), Valid: true}}, nil)
 	repo.EXPECT().CreateTransaction(
 		mock.Anything,
 		mock.Anything,
@@ -209,7 +224,13 @@ func TestService_Withdraw_Successful(t *testing.T) {
 			}
 			return true
 		}),
-	).Once().Return(repository.Transaction{ID: 1}, nil)
+	).Once().Return(repository.Transaction{
+		ID:        1,
+		Amount:    pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+		UserID:    1,
+		Kind:      repository.KindWITHDRAW,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	}, nil)
 
 	repo.EXPECT().CreateUserBalanceOrDecreaseAmount(
 		mock.Anything,
@@ -236,6 +257,31 @@ func TestService_Withdraw_Successful(t *testing.T) {
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
 	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionEventManager.EXPECT().PublishTransactionCreatedEvent(
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(transaction.TransactionCreatedEventParams)
+			if p.UserID != 1 {
+				return false
+			}
+			if p.TransactionID != 1 {
+				return false
+			}
+			if p.Kind != "WITHDRAW" {
+				return false
+			}
+			if p.Amount != 100 {
+				return false
+			}
+			if p.Balance != 120 {
+				return false
+			}
+			if p.CreatedAt <= 0 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return()
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
@@ -441,7 +487,13 @@ func TestService_Deposit_Successful(t *testing.T) {
 			}
 			return true
 		}),
-	).Once().Return(repository.Transaction{ID: 1}, nil)
+	).Once().Return(repository.Transaction{
+		ID:        1,
+		Amount:    pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+		UserID:    1,
+		Kind:      repository.KindDEPOSIT,
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+	}, nil)
 
 	repo.EXPECT().CreateUserBalanceOrIncreaseAmount(
 		mock.Anything,
@@ -468,6 +520,31 @@ func TestService_Deposit_Successful(t *testing.T) {
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
 	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionEventManager.EXPECT().PublishTransactionCreatedEvent(
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(transaction.TransactionCreatedEventParams)
+			if p.UserID != 1 {
+				return false
+			}
+			if p.TransactionID != 1 {
+				return false
+			}
+			if p.Kind != "DEPOSIT" {
+				return false
+			}
+			if p.Amount != 100 {
+				return false
+			}
+			if p.Balance != 120 {
+				return false
+			}
+			if p.CreatedAt <= 0 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return()
 	transactionService := transaction.NewService(
 		dbMock,
 		repo,
