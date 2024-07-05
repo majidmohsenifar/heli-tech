@@ -9,12 +9,16 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/config"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/logger"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
 
 var loggerService *slog.Logger
 var mainDB *pgxpool.Pool
+var redisClient *redis.Client
+
 var viperConfig *viper.Viper
 
 var Seeders = map[string]func(ctx context.Context, db *pgxpool.Pool){}
@@ -78,6 +82,19 @@ func getDB() *pgxpool.Pool {
 	}
 	mainDB = dbPool
 	return mainDB
+}
+
+func getRedis() *redis.Client {
+	if redisClient != nil {
+		return redisClient
+	}
+	var err error
+	viper := getViperConfig()
+	redisClient, err = core.NewRedisClient(viper.GetString("redis.dsn"))
+	if err != nil {
+		panic("cannot initiate redis")
+	}
+	return redisClient
 }
 
 func truncateDB() error {
