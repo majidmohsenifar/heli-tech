@@ -4,3 +4,7 @@ db:
 redis:
   dsn: "redis:6379"
 
+kafka:
+  urls: 
+  - "kafka:9092"
+

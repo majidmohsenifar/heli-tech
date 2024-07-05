@@ -42,6 +42,12 @@ func main() {
 		os.Exit(1)
 	}
 	defer redisClient.Close()
+
+	viper.GetStringSlice("kafka.urls")
+	kafkaReaderBuilder := client.NewKafkaReaderBuilder(config.KafkaURLs(), "", 100000)
+
+
+
 	redisLocker := core.NewRedisLocker(redisClient)
 	transactionService := transaction.NewService(
 		dbClient,

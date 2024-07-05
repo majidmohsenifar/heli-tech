@@ -3,7 +3,7 @@ dir: "."
 outpkg: mocks
 
 packages:
-  github.com/majidmohsenifar/heli-tech/payment-service/repository:
+  github.com/majidmohsenifar/heli-tech/transaction-service/repository:
     interfaces:
       Querier:
         config:

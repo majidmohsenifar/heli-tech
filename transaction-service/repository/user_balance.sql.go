@@ -70,3 +70,20 @@ func (q *Queries) CreateUserBalanceOrIncreaseAmount(ctx context.Context, db DBTX
 	)
 	return i, err
 }
+
+const getUserBalanceByUserID = `-- name: GetUserBalanceByUserID :one
+SELECT id, user_id, amount, created_at, updated_at FROM user_balances WHERE user_id = $1
+`
+
+func (q *Queries) GetUserBalanceByUserID(ctx context.Context, db DBTX, userID int64) (UserBalance, error) {
+	row := db.QueryRow(ctx, getUserBalanceByUserID, userID)
+	var i UserBalance
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

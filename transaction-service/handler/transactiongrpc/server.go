@@ -31,6 +31,9 @@ func (s *server) Withdraw(
 	if err == transaction.ErrOngoingRequest {
 		return nil, status.Error(codes.Code(422), err.Error())
 	}
+	if err == transaction.ErrInsufficientBalance {
+		return nil, status.Error(codes.Code(422), err.Error())
+	}
 	if err != nil {
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}

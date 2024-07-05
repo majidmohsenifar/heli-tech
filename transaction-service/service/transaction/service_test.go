@@ -1,371 +1,471 @@
 package transaction_test
 
-//import (
-//"context"
-//"errors"
-//"strings"
-//"testing"
+import (
+	"context"
+	"errors"
+	"fmt"
+	"math/big"
+	"testing"
+	"time"
 
-//"github.com/majidmohsenifar/heli-tech/user-service/config"
-//"github.com/majidmohsenifar/heli-tech/user-service/core"
-//"github.com/majidmohsenifar/heli-tech/user-service/logger"
-//"github.com/majidmohsenifar/heli-tech/user-service/mocks"
-//"github.com/majidmohsenifar/heli-tech/user-service/repository"
-//"github.com/majidmohsenifar/heli-tech/user-service/service/auth"
-//"github.com/majidmohsenifar/heli-tech/user-service/service/jwt"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/helper"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/logger"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/mocks"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/repository"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/service/transaction"
+	"github.com/pashagolub/pgxmock/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
-//"github.com/jackc/pgx/v5"
-//"github.com/pashagolub/pgxmock/v4"
-//"github.com/stretchr/testify/assert"
-//"github.com/stretchr/testify/mock"
-//)
+	"github.com/alicebob/miniredis/v2"
+)
 
-//func TestService_Register_EmailAlreadyExist(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, nil)
-//passwordEncoder := core.NewPasswordEncoder()
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//nil,
-//)
-//err := authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(err, auth.ErrEmailAlreadyExist)
-//repo.AssertExpectations(t)
-//}
+func TestService_Withdraw_CannotObtainLock(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
 
-//func TestService_Register_CannotGeneratePasswordHash(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//passwordEncoder := core.NewPasswordEncoder()
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//nil,
-//)
-//err := authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: strings.Repeat("a", 73),
-//})
-//assert.Equal(err, errors.New("cannot hash the password"))
-//repo.AssertExpectations(t)
-//}
+	repo := new(mocks.MockQuerier)
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	//first we try to obtain lock so the logic would encounter error
+	lock, err := redisLocker.Obtain(ctx, fmt.Sprintf("transaction:%d", 1), time.Duration(30*time.Second), nil)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, transaction.ErrOngoingRequest)
+	lock.Release(ctx)
+	repo.AssertExpectations(t)
+}
 
-//func TestService_Register_DefaultRoleDoesNotExist(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{}, pgx.ErrNoRows)
-//passwordEncoder := core.NewPasswordEncoder()
-//roleRouteManager := auth.NewRoleRouteManager(nil, repo)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//roleRouteManager,
-//)
-//err := authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(err, errors.New("default role does not exist"))
-//repo.AssertExpectations(t)
-//}
+func TestService_Withdraw_CannotCreateTransaction(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
 
-//func TestService_Register_CannotCreateUser(t *testing.T) {
-//assert := assert.New(t)
-//dbMock, err := pgxmock.NewPool()
-//assert.Nil(err)
-//defer dbMock.Close()
-//dbMock.ExpectBegin()
-//dbMock.ExpectRollback()
-//passwordEncoder := core.NewPasswordEncoder()
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
-//repo.EXPECT().CreateUser(
-//mock.Anything,
-//mock.Anything,
-//mock.MatchedBy(func(input interface{}) bool {
-//p := input.(repository.CreateUserParams)
-//if p.Email != "test@test.com" {
-//return false
-//}
-//if passwordEncoder.CompareHashAndPassword(p.Password, "123456789") != nil {
-//return false
-//}
-//return true
-//}),
-//).Once().Return(repository.User{}, errors.New("db error"))
-//roleRouteManager := auth.NewRoleRouteManager(nil, repo)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//dbMock,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//roleRouteManager,
-//)
-//err = authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(err, errors.New("cannot create user"))
-//repo.AssertExpectations(t)
-//}
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			if p.Kind != repository.KindWITHDRAW {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{}, errors.New("db error"))
 
-//func TestService_Register_CannotAddDefaultRole(t *testing.T) {
-//assert := assert.New(t)
-//dbMock, err := pgxmock.NewPool()
-//assert.Nil(err)
-//defer dbMock.Close()
-//dbMock.ExpectBegin()
-//dbMock.ExpectRollback()
-//passwordEncoder := core.NewPasswordEncoder()
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
-//repo.EXPECT().CreateUser(
-//mock.Anything,
-//mock.Anything,
-//mock.MatchedBy(func(input interface{}) bool {
-//p := input.(repository.CreateUserParams)
-//if p.Email != "test@test.com" {
-//return false
-//}
-//if passwordEncoder.CompareHashAndPassword(p.Password, "123456789") != nil {
-//return false
-//}
-//return true
-//}),
-//).Once().Return(repository.User{ID: 1}, nil)
-//repo.EXPECT().AddRoleToUser(
-//mock.Anything,
-//mock.Anything,
-//mock.MatchedBy(func(input interface{}) bool {
-//p := input.(repository.AddRoleToUserParams)
-//if p.UserID != 1 {
-//return false
-//}
-//if p.RoleID != 1 {
-//return false
-//}
-//return true
-//}),
-//).Once().Return(errors.New("db error"))
-//roleRouteManager := auth.NewRoleRouteManager(nil, repo)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//dbMock,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//roleRouteManager,
-//)
-//err = authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(err, errors.New("cannot add role to user"))
-//repo.AssertExpectations(t)
-//}
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, errors.New("cannot create transaction"))
+	repo.AssertExpectations(t)
+}
 
-//func TestService_Register_Successful(t *testing.T) {
-//assert := assert.New(t)
-//dbMock, err := pgxmock.NewPool()
-//assert.Nil(err)
-//defer dbMock.Close()
-//dbMock.ExpectBegin()
-//dbMock.ExpectCommit()
-//passwordEncoder := core.NewPasswordEncoder()
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
-//repo.EXPECT().CreateUser(
-//mock.Anything,
-//mock.Anything,
-//mock.MatchedBy(func(input interface{}) bool {
-//p := input.(repository.CreateUserParams)
-//if p.Email != "test@test.com" {
-//return false
-//}
-//if passwordEncoder.CompareHashAndPassword(p.Password, "123456789") != nil {
-//return false
-//}
-//return true
-//}),
-//).Once().Return(repository.User{ID: 1}, nil)
-//repo.EXPECT().AddRoleToUser(
-//mock.Anything,
-//mock.Anything,
-//mock.MatchedBy(func(input interface{}) bool {
-//p := input.(repository.AddRoleToUserParams)
-//if p.UserID != 1 {
-//return false
-//}
-//if p.RoleID != 1 {
-//return false
-//}
-//return true
-//}),
-//).Once().Return(nil)
-//roleRouteManager := auth.NewRoleRouteManager(nil, repo)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//dbMock,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//roleRouteManager,
-//)
-//err = authService.Register(context.Background(), auth.RegisterParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Nil(err)
-//repo.AssertExpectations(t)
-//}
+func TestService_Withdraw_CannotInsertOrIncreaseUserBalance(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
 
-//func TestService_Login_EmailDoesNotExit(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-//passwordEncoder := core.NewPasswordEncoder()
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//nil,
-//)
-//token, err := authService.Login(context.Background(), auth.LoginParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(token, "")
-//assert.Equal(err, auth.ErrInvalidUsernameOrPassword)
-//repo.AssertExpectations(t)
-//}
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			if p.Kind != repository.KindWITHDRAW {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{ID: 1}, nil)
 
-//func TestService_Login_InvalidPassword(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//passwordEncoder := core.NewPasswordEncoder()
-//hashedPass, err := passwordEncoder.GenerateFromPassword("otherpassword")
-//assert.Nil(err)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1, Password: string(hashedPass)}, nil)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//nil,
-//logger,
-//nil,
-//)
-//token, err := authService.Login(context.Background(), auth.LoginParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Equal(err, auth.ErrInvalidUsernameOrPassword)
-//assert.Equal(token, "")
-//repo.AssertExpectations(t)
-//}
+	repo.EXPECT().CreateUserBalanceOrDecreaseAmount(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateUserBalanceOrDecreaseAmountParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.UserBalance{}, errors.New("db error"))
 
-//func TestService_Login_Successful(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//passwordEncoder := core.NewPasswordEncoder()
-//hashedPass, err := passwordEncoder.GenerateFromPassword("123456789")
-//assert.Nil(err)
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1, Password: string(hashedPass)}, nil)
-//viper := config.NewViper("../../config/")
-//jwtService, err := jwt.NewService(viper)
-//assert.Nil(err)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//jwtService,
-//logger,
-//nil,
-//)
-//token, err := authService.Login(context.Background(), auth.LoginParams{
-//Email:    "test@test.com",
-//Password: "123456789",
-//})
-//assert.Nil(err)
-//assert.NotEqual(token, "")
-//repo.AssertExpectations(t)
-//}
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, errors.New("cannot update user balance"))
+	repo.AssertExpectations(t)
+}
 
-//func TestService_GetUserDataByToken_InvalidToken(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//passwordEncoder := core.NewPasswordEncoder()
-//viper := config.NewViper("../../config/")
-//jwtService, err := jwt.NewService(viper)
-//logger := logger.NewLogger()
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//jwtService,
-//logger,
-//nil,
-//)
-//_, err = authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
-//Token: "invalid",
-//})
-//assert.Equal(err, auth.ErrInvalidToken)
-//}
+func TestService_Withdraw_Successful(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectCommit()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
 
-//func TestService_GetUserDataByToken_Successful(t *testing.T) {
-//assert := assert.New(t)
-//repo := new(mocks.MockQuerier)
-//passwordEncoder := core.NewPasswordEncoder()
-//repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1}, nil)
-//logger := logger.NewLogger()
-//viper := config.NewViper("../../config/")
-//jwtService, err := jwt.NewService(viper)
-//assert.Nil(err)
-//token, err := jwtService.GenerateToken("test@test.com")
-//assert.Nil(err)
-//authService := auth.NewService(
-//nil,
-//repo,
-//passwordEncoder,
-//jwtService,
-//logger,
-//nil,
-//)
-//userData, err := authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
-//Token: token,
-//})
-//assert.Nil(err)
-//assert.Equal(userData.Email, "test@test.com")
-//assert.Equal(userData.ID, int64(1))
-//repo.AssertExpectations(t)
-//}
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			if p.Kind != repository.KindWITHDRAW {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{ID: 1}, nil)
+
+	repo.EXPECT().CreateUserBalanceOrDecreaseAmount(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateUserBalanceOrDecreaseAmountParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(120), Valid: true}}, nil)
+
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	res, err := transactionService.Withdraw(ctx, transaction.WithdrawParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Nil(err)
+	assert.Equal(res.Amount, 100.0)
+	assert.Equal(res.NewBalance, 120.0)
+	assert.Greater(res.CreatedAt, int64(0))
+	repo.AssertExpectations(t)
+}
+
+func TestService_Deposit_CannotObtainLock(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	//first we try to obtain lock so the logic would encounter error
+	lock, err := redisLocker.Obtain(ctx, fmt.Sprintf("transaction:%d", 1), time.Duration(30*time.Second), nil)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, transaction.ErrOngoingRequest)
+	lock.Release(ctx)
+	repo.AssertExpectations(t)
+}
+
+func TestService_Deposit_CannotCreateTransaction(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			if p.Kind != repository.KindDEPOSIT {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{}, errors.New("db error"))
+
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, errors.New("cannot create transaction"))
+	repo.AssertExpectations(t)
+}
+
+func TestService_Deposit_CannotInsertOrIncreaseUserBalance(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			if p.Kind != repository.KindDEPOSIT {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{ID: 1}, nil)
+
+	repo.EXPECT().CreateUserBalanceOrIncreaseAmount(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateUserBalanceOrIncreaseAmountParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.UserBalance{}, errors.New("db error"))
+
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	_, err = transactionService.Deposit(ctx, transaction.DepositParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Equal(err, errors.New("cannot update user balance"))
+	repo.AssertExpectations(t)
+}
+
+func TestService_Deposit_Successful(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectCommit()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().CreateTransaction(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateTransactionParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			if p.Kind != repository.KindDEPOSIT {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.Transaction{ID: 1}, nil)
+
+	repo.EXPECT().CreateUserBalanceOrIncreaseAmount(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.CreateUserBalanceOrIncreaseAmountParams)
+			if p.UserID != 1 {
+				return false
+			}
+			amount, err := helper.PGNumericToFloat64(p.Amount)
+			if err != nil {
+				return false
+			}
+			if amount != 100 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(120), Valid: true}}, nil)
+
+	s := miniredis.RunT(t)
+	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	assert.Nil(err)
+	redisLocker := core.NewRedisLocker(redisClient)
+	logger := logger.NewLogger()
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		redisLocker,
+		logger,
+	)
+	res, err := transactionService.Deposit(ctx, transaction.DepositParams{
+		UserID: 1,
+		Amount: 100,
+	})
+	assert.Nil(err)
+	assert.Equal(res.Amount, 100.0)
+	assert.Equal(res.NewBalance, 120.0)
+	assert.Greater(res.CreatedAt, int64(0))
+	repo.AssertExpectations(t)
+}

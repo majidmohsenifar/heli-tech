@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/helper"
 	"github.com/majidmohsenifar/heli-tech/transaction-service/repository"
@@ -15,14 +16,16 @@ import (
 )
 
 var (
-	ErrOngoingRequest = errors.New("there is already an ongoing transaction request")
+	ErrOngoingRequest      = errors.New("there is already an ongoing transaction request")
+	ErrInsufficientBalance = errors.New("the balance is not enough for withdraw")
 )
 
 type Service struct {
-	db          core.PgxInterface
-	repo        repository.Querier
-	redisLocker *redislock.Client
-	logger      *slog.Logger
+	db           core.PgxInterface
+	repo         repository.Querier
+	redisLocker  *redislock.Client
+	logger       *slog.Logger
+	eventManager *TransactionEventManager
 }
 
 type WithdrawParams struct {
@@ -55,6 +58,22 @@ func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (Transact
 	}
 	defer lock.Release(ctx)
 
+	//first we check if user has balance for the withdraw amount
+	ub, err := s.repo.GetUserBalanceByUserID(ctx, s.db, params.UserID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return TransactionDetail{}, fmt.Errorf("cannot check the user balance")
+	}
+	if errors.Is(err, pgx.ErrNoRows) {
+		return TransactionDetail{}, ErrInsufficientBalance
+	}
+	ubAmount, err := helper.PGNumericToFloat64(ub.Amount)
+	if err != nil {
+		return TransactionDetail{}, fmt.Errorf("cannot check user balance for now")
+	}
+	if ubAmount < params.Amount {
+		return TransactionDetail{}, ErrInsufficientBalance
+	}
+
 	dbTx, err := s.db.Begin(ctx)
 	if err != nil {
 		s.logger.Error("cannot start db transaction", err)
@@ -70,8 +89,6 @@ func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (Transact
 		Kind:   repository.KindWITHDRAW,
 		Amount: amountNumeric,
 	})
-	//TODO: use t for raise event
-	fmt.Println("t is ", tx)
 	if err != nil {
 		dbTx.Rollback(ctx)
 		s.logger.Error("cannot create transaction", err)
@@ -93,12 +110,20 @@ func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (Transact
 		s.logger.Error("cannot commit transaction", err)
 		return TransactionDetail{}, errors.New("cannot store in db")
 	}
-	//TODO: raise event for deposit
 	newBalance, err := helper.PGNumericToFloat64(balance.Amount)
 	if err != nil {
 		s.logger.Error("cannot convert PGNumericToFloat64", err)
 		//we do not return here as it does not affect our logic
 	}
+
+	s.eventManager.PublishTransactionCreatedEvent(ctx, TransactionCreatedEventParams{
+		UserID:        tx.UserID,
+		TransactionID: tx.ID,
+		Type:          string(tx.Kind),
+		Amount:        params.Amount,
+		Balance:       newBalance,
+		CreatedAt:     tx.CreatedAt.Time.Unix(),
+	})
 	return TransactionDetail{
 		CreatedAt:  time.Now().Unix(),
 		Amount:     params.Amount,
@@ -136,8 +161,6 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 		Kind:   repository.KindDEPOSIT,
 		Amount: amountNumeric,
 	})
-	//TODO: use t for raise event
-	fmt.Println("t is ", tx)
 	if err != nil {
 		dbTx.Rollback(ctx)
 		s.logger.Error("cannot create transaction", err)
@@ -158,12 +181,19 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 		s.logger.Error("cannot commit transaction", err)
 		return TransactionDetail{}, errors.New("cannot store in db")
 	}
-	//TODO: raise event for deposit
 	newBalance, err := helper.PGNumericToFloat64(balance.Amount)
 	if err != nil {
 		s.logger.Error("cannot convert PGNumericToFloat64", err)
 		//we do not return here as it does not affect our logic
 	}
+	s.eventManager.PublishTransactionCreatedEvent(ctx, TransactionCreatedEventParams{
+		UserID:        tx.UserID,
+		TransactionID: tx.ID,
+		Type:          string(tx.Kind),
+		Amount:        params.Amount,
+		Balance:       newBalance,
+		CreatedAt:     tx.CreatedAt.Time.Unix(),
+	})
 	return TransactionDetail{
 		CreatedAt:  time.Now().Unix(),
 		Amount:     params.Amount,
@@ -176,11 +206,14 @@ func NewService(
 	repo repository.Querier,
 	redisLocker *redislock.Client,
 	logger *slog.Logger,
+	eventManager *TransactionEventManager,
+
 ) *Service {
 	return &Service{
-		db:          db,
-		repo:        repo,
-		redisLocker: redisLocker,
-		logger:      logger,
+		db:           db,
+		repo:         repo,
+		redisLocker:  redisLocker,
+		logger:       logger,
+		eventManager: eventManager,
 	}
 }

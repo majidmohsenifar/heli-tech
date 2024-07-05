@@ -21,3 +21,6 @@ INSERT INTO user_balances (
 ) ON CONFLICT (user_id) DO UPDATE SET amount = user_balances.amount-EXCLUDED.amount,  updated_at = now() 
 RETURNING *;
 
+-- name: GetUserBalanceByUserID :one
+SELECT * FROM user_balances WHERE user_id = $1;
+
