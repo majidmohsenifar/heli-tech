@@ -1,0 +1,11 @@
+CREATE TYPE kind AS ENUM (
+  'WITHDRAW', 'DEPOSIT'
+);
+
+CREATE TABLE IF NOT EXISTS transactions (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  kind kind NOT NULL DEFAULT 'DEPOSIT',
+  amount DECIMAL NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT (now())
+);

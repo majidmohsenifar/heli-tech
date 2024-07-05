@@ -11,7 +11,20 @@ services:
       - "5432:5432"
     volumes:
       - user-db:/var/lib/postgresql/data
+  
+  transaction-db:
+    image: "postgres"
+    environment:
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=transaction_db
+    restart: on-failure
+    ports:
+      - "5433:5432"
+    volumes:
+      - transaction-db:/var/lib/postgresql/data
 
 volumes:
   user-db:
+  transaction-db:
 

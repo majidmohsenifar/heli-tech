@@ -7,14 +7,12 @@ import (
 	"net"
 	"os"
 
-	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
-	"github.com/majidmohsenifar/heli-tech/user-service/config"
-	"github.com/majidmohsenifar/heli-tech/user-service/core"
-	"github.com/majidmohsenifar/heli-tech/user-service/handler/usergrpc"
-	"github.com/majidmohsenifar/heli-tech/user-service/logger"
-	"github.com/majidmohsenifar/heli-tech/user-service/repository"
-	"github.com/majidmohsenifar/heli-tech/user-service/service/auth"
-	"github.com/majidmohsenifar/heli-tech/user-service/service/jwt"
+	paymentpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/payment"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/config"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/core"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/logger"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/repository"
+	"github.com/majidmohsenifar/heli-tech/transaction-service/service/transaction"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"google.golang.org/grpc"
@@ -23,7 +21,7 @@ import (
 )
 
 const (
-	grpcPort = "50051"
+	grpcPort = "50052"
 )
 
 func main() {
@@ -37,17 +35,9 @@ func main() {
 	}
 	defer dbClient.Close()
 	repo := repository.New()
-	passwordEncoder := core.NewPasswordEncoder()
-	jwtService, err := jwt.NewService(viper)
-	if err != nil {
-		logger.Error("failed to jwt service", err)
-		os.Exit(1)
-	}
-	authService := auth.NewService(
+	transactionService := transaction.NewService(
 		dbClient,
 		repo,
-		passwordEncoder,
-		jwtService,
 		logger,
 	)
 
@@ -73,10 +63,10 @@ func main() {
 			recovery.StreamServerInterceptor(recovery.WithRecoveryHandler(grpcPanicRecoveryHandler)),
 		),
 	)
-	userGrpcServer := usergrpc.NewServer(
-		authService,
+	transactionGrpcServer := transactiongrpc.NewServer(
+		transactionService,
 	)
-	userpb.RegisterUserServer(grpcServer, userGrpcServer)
+	paymentpb.RegisterPaymentServer(grpcServer, transactionGrpcServer)
 	l, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%s", grpcPort))
 	if err != nil {
 		logger.Error("can not listen to grpcPort", err)

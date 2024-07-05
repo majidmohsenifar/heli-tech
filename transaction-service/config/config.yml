@@ -1,0 +1,3 @@
+db:
+  dsn: "postgres://postgres:postgres@transaction-db:5433/transaction_db?sslmode=disable"
+

@@ -1,0 +1,15 @@
+version: "2"
+sql:
+- schema: "migrations/"
+  queries: 
+    - "transaction.sql"
+    - "user_balance.sql"
+  engine: "postgresql"
+  gen:
+    go: 
+      package: "repository"
+      out: "../repository"
+      emit_interface: true
+      sql_package: "pgx/v5"
+      emit_methods_with_db_argument: true
+

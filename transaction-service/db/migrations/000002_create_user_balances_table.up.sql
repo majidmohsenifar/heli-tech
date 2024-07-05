@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS user_balances (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  amount DECIMAL NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT (now())
+);
