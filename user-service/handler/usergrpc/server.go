@@ -93,14 +93,15 @@ func (s *server) GetUserDataByToken(
 		Token: req.Token,
 		Path:  req.Path,
 	})
+	if err == auth.ErrInvalidToken {
+		return nil, status.Error(codes.Code(403), err.Error())
+	}
 	if err == auth.ErrAccessDenied {
 		return nil, status.Error(codes.Code(403), err.Error())
 	}
 	if err != nil {
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}
-	resp.Email = result.Email
-	resp.Id = result.ID
 	return &userpb.GetUserDataByTokenResponse{
 		Id:    result.ID,
 		Email: result.Email,
