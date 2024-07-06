@@ -19,7 +19,7 @@ func main() {
 	logger := logger.NewLogger()
 	kafkaURLs := viper.GetStringSlice("kafka.urls")
 	notificationService := notification.NewService()
-	kafkaReaderBuilder := core.NewKafkaReaderBuilder(kafkaURLs, "", 100000)
+	kafkaReaderBuilder := core.NewKafkaReaderBuilder(kafkaURLs, "videoCreatedConsumer", 100000)
 	kafkaReader := kafkaReaderBuilder.SetTopic(consumer.TopicTransactionCreated).Build()
 	transactionCreatedConsumer := consumer.NewTransactionCreatedConsumer(
 		kafkaReader,

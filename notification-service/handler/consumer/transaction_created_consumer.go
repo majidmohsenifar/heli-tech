@@ -34,9 +34,12 @@ func (c *TransactionCreatedConsumer) Consume(ctx context.Context) {
 			break
 		}
 		err = c.notificationService.SendNotification(ctx, notification.SendNotificationParams{
-			UserID:        0,
-			TransactionID: 0,
-			Amount:        0,
+			TransactionID: params.TransactionID,
+			UserID:        params.UserID,
+			Amount:        params.Amount,
+			Balance:       params.Balance,
+			Kind:          params.Kind,
+			CreatedAt:     params.CreatedAt,
 		})
 		if err == nil {
 			err = c.kafkaReader.CommitMessages(ctx, msg)
