@@ -45,6 +45,19 @@ type DepositParams struct {
 	Amount float64
 }
 
+type GetUserTransactionsParams struct {
+	UserID   int64
+	Page     uint64
+	PageSize uint64
+}
+
+type Transaction struct {
+	ID        int64
+	Amount    float64
+	Kind      string
+	CreatedAt int64
+}
+
 func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (TransactionDetail, error) {
 	//lock concurrent process
 	//we lock for max 30s for each user, because it may have called the deposit and withdraw, and
@@ -202,6 +215,11 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 		Amount:     params.Amount,
 		NewBalance: newBalance,
 	}, nil
+}
+
+func (s *Service) GetUserTransactions(ctx context.Context, params GetUserTransactionsParams) ([]Transaction, error) {
+	panic("here we go")
+
 }
 
 func NewService(

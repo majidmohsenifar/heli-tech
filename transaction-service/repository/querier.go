@@ -14,6 +14,7 @@ type Querier interface {
 	CreateUserBalanceOrIncreaseAmount(ctx context.Context, db DBTX, arg CreateUserBalanceOrIncreaseAmountParams) (UserBalance, error)
 	GetTransactionByID(ctx context.Context, db DBTX, id int64) (Transaction, error)
 	GetUserBalanceByUserID(ctx context.Context, db DBTX, userID int64) (UserBalance, error)
+	GetUserTransactionsByPagination(ctx context.Context, db DBTX, arg GetUserTransactionsByPaginationParams) ([]Transaction, error)
 }
 
 var _ Querier = (*Queries)(nil)

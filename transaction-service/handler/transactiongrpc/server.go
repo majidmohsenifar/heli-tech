@@ -73,6 +73,38 @@ func (s *server) Deposit(
 	}, nil
 }
 
+func (s *server) GetTransactions(
+	ctx context.Context,
+	req *transactionpb.GetTransactionsRequest,
+) (*transactionpb.GetTransactionsResponse, error) {
+	if req.UserID < 1 {
+		return nil, status.Error(codes.Code(400), "userID is required")
+	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
+	transactions, err := s.transactionService.GetUserTransactions(ctx, transaction.GetUserTransactionsParams{
+		UserID:   req.UserID,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Code(500), "something went wrong")
+	}
+	txs := make([]*transactionpb.SingleTransaction, len(transactions))
+	for i, t := range transactions {
+		txs[i] = &transactionpb.SingleTransaction{
+			ID:        t.ID,
+			Amount:    t.Amount,
+			Kind:      t.Kind,
+			CreatedAt: t.CreatedAt,
+		}
+	}
+	return &transactionpb.GetTransactionsResponse{
+		Transactions: txs,
+	}, nil
+}
+
 func NewServer(
 	transactionService *transaction.Service,
 ) transactionpb.TransactionServer {

@@ -36,11 +36,10 @@ message DepositResponse {
 }
 
 message GetTransactionsRequest { 
-  uint64 page = 1;
-  uint64 pageSize = 2;
+  uint32 page = 1;
+  uint32 pageSize = 2;
   int64 userID = 3;
 }
-
 
 message GetTransactionsResponse {
   repeated SingleTransaction transactions = 1;
