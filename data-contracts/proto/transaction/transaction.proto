@@ -7,6 +7,7 @@ option go_package = "./proto;transactiongrpc";
 service Transaction {
   rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
   rpc Deposit(DepositRequest) returns (DepositResponse);
+  rpc GetTransactions(GetTransactionsRequest) returns (GetTransactionsResponse);
 }
 
 
@@ -32,5 +33,23 @@ message DepositResponse {
 	double amount = 2;
     double newBalance  = 3;
 	int64 createdAt = 4;
+}
+
+message GetTransactionsRequest { 
+  uint64 page = 1;
+  uint64 pageSize = 2;
+  int64 userID = 3;
+}
+
+
+message GetTransactionsResponse {
+  repeated SingleTransaction transactions = 1;
+}
+
+message SingleTransaction {
+  int64 ID = 1;
+  double amount = 2;
+  string kind = 3;
+  int64 createdAt = 4;
 }
 
