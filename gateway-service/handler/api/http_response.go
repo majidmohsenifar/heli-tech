@@ -20,12 +20,12 @@ type ResponseSuccess struct {
 
 type ResponseFailure struct {
 	Success bool      `json:"success" example:"false"`
-	Error   ErrorCode `json:"error,omitempty" `
+	Error   ErrorCode `json:"error,omitempty"`
 }
 
 type ErrorCode struct {
 	Code    int    `json:"code" example:"404"`
-	Message string `json:"message" example:"item not find"`
+	Message string `json:"message" example:"item not found"`
 }
 
 func MakeSuccessResponse(w http.ResponseWriter, data interface{}, message string) {

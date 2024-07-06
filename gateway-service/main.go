@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	transactionpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/transaction"
 	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
@@ -25,7 +26,7 @@ const (
 func main() {
 	logger := logger.NewLogger()
 	viper := config.NewViper()
-
+	gin.SetMode(gin.ReleaseMode)
 	userConn, err := grpc.NewClient(
 		viper.GetString("usersrv.address"),
 		//config.UserServiceUrl(),
@@ -52,7 +53,7 @@ func main() {
 	validator := validator.New()
 	userHandler := api.NewUserHandler(userService, validator)
 	transactionHandler := api.NewTransactionHandler(transactionService, validator)
-	api.InitialSwagger()
+	api.InitiateSwagger()
 	router := router.New(
 		userHandler,
 		transactionHandler,

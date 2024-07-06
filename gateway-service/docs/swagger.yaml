@@ -5,7 +5,7 @@ definitions:
         example: 404
         type: integer
       message:
-        example: item not find
+        example: item not found
         type: string
     type: object
   api.ResponseFailure:
@@ -24,6 +24,42 @@ definitions:
       success:
         example: true
         type: boolean
+    type: object
+  transaction.DepositParams:
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
+    type: object
+  transaction.Transaction:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        type: integer
+      id:
+        type: integer
+      kind:
+        type: string
+    type: object
+  transaction.TransactionDetail:
+    properties:
+      amount:
+        type: number
+      createdAt:
+        type: integer
+      id:
+        type: integer
+      newBalance:
+        type: number
+    type: object
+  transaction.WithdrawParams:
+    properties:
+      amount:
+        type: number
+    required:
+    - amount
     type: object
   user.RegisterParams:
     properties:
@@ -108,6 +144,138 @@ paths:
       summary: register user
       tags:
       - User
+  /api/v1/transactions:
+    get:
+      consumes:
+      - application/json
+      description: allows user to see his/her transactions
+      operationId: UserTransactions
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: PageSize
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseSuccess'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/transaction.Transaction'
+                  type: array
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+      security:
+      - ApiKeyAuth: []
+      summary: transactions list
+      tags:
+      - Transaction
+  /api/v1/transactions/deposit:
+    post:
+      consumes:
+      - application/json
+      description: allows user to deposit
+      operationId: Deposit
+      parameters:
+      - description: Deposit-Params
+        in: body
+        name: params
+        schema:
+          $ref: '#/definitions/transaction.DepositParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/transaction.TransactionDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+      security:
+      - ApiKeyAuth: []
+      summary: deposit
+      tags:
+      - Transaction
+  /api/v1/transactions/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: allows user to withdraw
+      operationId: Withdraw
+      parameters:
+      - description: Withdraw-Params
+        in: body
+        name: params
+        schema:
+          $ref: '#/definitions/transaction.WithdrawParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseSuccess'
+            - properties:
+                data:
+                  $ref: '#/definitions/transaction.TransactionDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+      security:
+      - ApiKeyAuth: []
+      summary: withdraw
+      tags:
+      - Transaction
 securityDefinitions:
   ApiKeyAuth:
     in: header

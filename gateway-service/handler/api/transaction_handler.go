@@ -25,7 +25,9 @@ type TransactionHandler struct {
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Param			params	body		transaction.WithdrawParams	false	"Withdraw-Params"
-//	@Success		200		{object}	ResponseSuccess
+//
+// @Success		 200	{object}	ResponseSuccess{data=transaction.TransactionDetail}
+//
 //	@Failure		400		{object}	ResponseFailure
 //	@Failure		403		{object}	ResponseFailure
 //	@Failure		422		{object}	ResponseFailure
@@ -87,7 +89,9 @@ func (h *TransactionHandler) Withdraw(c *gin.Context) {
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Param			params	body		transaction.DepositParams	false	"Deposit-Params"
-//	@Success		200		{object}	ResponseSuccess
+//
+// @Success		 200	{object}	ResponseSuccess{data=transaction.TransactionDetail}
+//
 //	@Failure		400		{object}	ResponseFailure
 //	@Failure		403		{object}	ResponseFailure
 //	@Failure		422		{object}	ResponseFailure
@@ -151,7 +155,8 @@ func (h *TransactionHandler) Deposit(c *gin.Context) {
 // @Param		    page query int false "Page"
 // @Param		    pageSize query int false "PageSize"
 //
-//	@Success		200		{object}	ResponseSuccess
+// @Success		 200	{object}	ResponseSuccess{data=[]transaction.Transaction}
+//
 //	@Failure		403		{object}	ResponseFailure
 //	@Failure		500		{object}	ResponseFailure
 //	@Router			/api/v1/transactions [get]

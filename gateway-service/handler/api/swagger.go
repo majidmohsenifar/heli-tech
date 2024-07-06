@@ -14,7 +14,7 @@ const (
 	swaggerURL = "localhost:8081"
 )
 
-func InitialSwagger() {
+func InitiateSwagger() {
 	docs.SwaggerInfo.Schemes = []string{"https", "http"}
 	r := gin.Default()
 	url := ginSwagger.URL("./swagger/doc.json")
