@@ -47,8 +47,8 @@ type DepositParams struct {
 
 type GetUserTransactionsParams struct {
 	UserID   int64
-	Page     uint64
-	PageSize uint64
+	Page     uint32
+	PageSize uint32
 }
 
 type Transaction struct {
@@ -218,8 +218,30 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 }
 
 func (s *Service) GetUserTransactions(ctx context.Context, params GetUserTransactionsParams) ([]Transaction, error) {
-	panic("here we go")
-
+	transactions, err := s.repo.GetUserTransactionsByPagination(ctx, s.db, repository.GetUserTransactionsByPaginationParams{
+		UserID: params.UserID,
+		Offset: int32(params.Page * params.PageSize),
+		Limit:  int32(params.PageSize),
+	})
+	if err != nil {
+		s.logger.Error("cannot get user transactions", err)
+		return nil, errors.New("cannot get user transactions")
+	}
+	txs := make([]Transaction, len(transactions))
+	for i, t := range transactions {
+		amount, err := helper.PGNumericToFloat64(t.Amount)
+		if err != nil {
+			s.logger.Error("cannot convert pg numeric to float", err)
+			//we do not return as the flow can go further
+		}
+		txs[i] = Transaction{
+			ID:        t.ID,
+			Amount:    amount,
+			Kind:      string(t.Kind),
+			CreatedAt: t.CreatedAt.Time.Unix(),
+		}
+	}
+	return txs, nil
 }
 
 func NewService(

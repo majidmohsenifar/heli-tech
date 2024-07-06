@@ -7,7 +7,7 @@ require (
 	github.com/bsm/redislock v0.9.4
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/jackc/pgx/v5 v5.6.0
-	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706072356-e683fdf41fda
+	github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706074006-f7e01bc1279a
 	github.com/pashagolub/pgxmock/v4 v4.1.0
 	github.com/redis/go-redis/v9 v9.5.3
 	github.com/segmentio/kafka-go v0.4.47

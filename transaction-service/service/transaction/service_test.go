@@ -637,3 +637,123 @@ func TestService_Deposit_Successful(t *testing.T) {
 	assert.Greater(res.CreatedAt, int64(0))
 	repo.AssertExpectations(t)
 }
+
+func TestService_GetUserTransactions_DBError(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserTransactionsByPagination(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.GetUserTransactionsByPaginationParams)
+			if p.UserID != 1 {
+				return false
+			}
+			if p.Limit != 10 {
+				return false
+			}
+			if p.Offset != 10 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return(nil, errors.New("dbError"))
+
+	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		nil,
+		logger,
+		transactionEventManager,
+	)
+	_, err = transactionService.GetUserTransactions(ctx, transaction.GetUserTransactionsParams{
+		UserID:   1,
+		Page:     1,
+		PageSize: 10,
+	})
+	assert.Equal(err, errors.New("cannot get user transactions"))
+
+	repo.AssertExpectations(t)
+}
+
+func TestService_GetUserTransactions_Successful(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	dbMock.ExpectBegin()
+	dbMock.ExpectRollback()
+	assert.Nil(err)
+	defer dbMock.Close()
+	ctx := context.Background()
+
+	repo := new(mocks.MockQuerier)
+	repo.EXPECT().GetUserTransactionsByPagination(
+		mock.Anything,
+		mock.Anything,
+		mock.MatchedBy(func(input interface{}) bool {
+			p := input.(repository.GetUserTransactionsByPaginationParams)
+			if p.UserID != 1 {
+				return false
+			}
+			if p.Limit != 10 {
+				return false
+			}
+			if p.Offset != 10 {
+				return false
+			}
+			return true
+		}),
+	).Once().Return([]repository.Transaction{
+		{
+			ID:        2,
+			UserID:    1,
+			Kind:      repository.KindDEPOSIT,
+			Amount:    pgtype.Numeric{Int: big.NewInt(100), Valid: true},
+			CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		},
+		{
+			ID:        1,
+			UserID:    1,
+			Kind:      repository.KindWITHDRAW,
+			Amount:    pgtype.Numeric{Int: big.NewInt(50), Valid: true},
+			CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		},
+	}, nil)
+
+	logger := logger.NewLogger()
+	transactionEventManager := new(mocks.MockTransactionEventManager)
+	transactionService := transaction.NewService(
+		dbMock,
+		repo,
+		nil,
+		logger,
+		transactionEventManager,
+	)
+	txs, err := transactionService.GetUserTransactions(ctx, transaction.GetUserTransactionsParams{
+		UserID:   1,
+		Page:     1,
+		PageSize: 10,
+	})
+	assert.Nil(err)
+
+	tx1 := txs[0]
+	assert.Equal(tx1.ID, int64(2))
+	assert.Equal(tx1.Amount, 100.0)
+	assert.Equal(tx1.Kind, "DEPOSIT")
+	assert.Greater(tx1.CreatedAt, int64(0))
+	tx2 := txs[1]
+	assert.Equal(tx2.ID, int64(1))
+	assert.Equal(tx2.Amount, 50.0)
+	assert.Equal(tx2.Kind, "WITHDRAW")
+	assert.Greater(tx2.CreatedAt, int64(0))
+
+	repo.AssertExpectations(t)
+}

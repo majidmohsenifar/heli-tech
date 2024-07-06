@@ -49,6 +49,8 @@ github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706065039-60e06a
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706065039-60e06a34ee1d/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706072356-e683fdf41fda h1:1toBhzSzGcgBGy3qpFhZemMaJsnkvM31gDCrnxq8VDI=
 github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706072356-e683fdf41fda/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706074006-f7e01bc1279a h1:unkv+JBh5pRYcjeNBaptzdC7glNoDf+m67cpEHgrvC8=
+github.com/majidmohsenifar/heli-tech/data-contracts v0.0.0-20240706074006-f7e01bc1279a/go.mod h1:PuHOd1SD8NkT2jsh2XcOGHK6PiJSEuYiXxVCa824OEY=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/pashagolub/pgxmock/v4 v4.1.0 h1:A+r5yyEXrbujk312WuaC548GnQv1n6vnGqZ/aSz7VL8=

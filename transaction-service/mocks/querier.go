@@ -184,6 +184,60 @@ func (_c *MockQuerier_CreateUserBalanceOrIncreaseAmount_Call) RunAndReturn(run f
 	return _c
 }
 
+// GetTransactionByID provides a mock function with given fields: ctx, db, id
+func (_m *MockQuerier) GetTransactionByID(ctx context.Context, db repository.DBTX, id int64) (repository.Transaction, error) {
+	ret := _m.Called(ctx, db, id)
+
+	var r0 repository.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, int64) (repository.Transaction, error)); ok {
+		return rf(ctx, db, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, int64) repository.Transaction); ok {
+		r0 = rf(ctx, db, id)
+	} else {
+		r0 = ret.Get(0).(repository.Transaction)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, repository.DBTX, int64) error); ok {
+		r1 = rf(ctx, db, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetTransactionByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactionByID'
+type MockQuerier_GetTransactionByID_Call struct {
+	*mock.Call
+}
+
+// GetTransactionByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db repository.DBTX
+//   - id int64
+func (_e *MockQuerier_Expecter) GetTransactionByID(ctx interface{}, db interface{}, id interface{}) *MockQuerier_GetTransactionByID_Call {
+	return &MockQuerier_GetTransactionByID_Call{Call: _e.mock.On("GetTransactionByID", ctx, db, id)}
+}
+
+func (_c *MockQuerier_GetTransactionByID_Call) Run(run func(ctx context.Context, db repository.DBTX, id int64)) *MockQuerier_GetTransactionByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repository.DBTX), args[2].(int64))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetTransactionByID_Call) Return(_a0 repository.Transaction, _a1 error) *MockQuerier_GetTransactionByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetTransactionByID_Call) RunAndReturn(run func(context.Context, repository.DBTX, int64) (repository.Transaction, error)) *MockQuerier_GetTransactionByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserBalanceByUserID provides a mock function with given fields: ctx, db, userID
 func (_m *MockQuerier) GetUserBalanceByUserID(ctx context.Context, db repository.DBTX, userID int64) (repository.UserBalance, error) {
 	ret := _m.Called(ctx, db, userID)
@@ -234,6 +288,62 @@ func (_c *MockQuerier_GetUserBalanceByUserID_Call) Return(_a0 repository.UserBal
 }
 
 func (_c *MockQuerier_GetUserBalanceByUserID_Call) RunAndReturn(run func(context.Context, repository.DBTX, int64) (repository.UserBalance, error)) *MockQuerier_GetUserBalanceByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetUserTransactionsByPagination provides a mock function with given fields: ctx, db, arg
+func (_m *MockQuerier) GetUserTransactionsByPagination(ctx context.Context, db repository.DBTX, arg repository.GetUserTransactionsByPaginationParams) ([]repository.Transaction, error) {
+	ret := _m.Called(ctx, db, arg)
+
+	var r0 []repository.Transaction
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, repository.GetUserTransactionsByPaginationParams) ([]repository.Transaction, error)); ok {
+		return rf(ctx, db, arg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, repository.GetUserTransactionsByPaginationParams) []repository.Transaction); ok {
+		r0 = rf(ctx, db, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]repository.Transaction)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, repository.DBTX, repository.GetUserTransactionsByPaginationParams) error); ok {
+		r1 = rf(ctx, db, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_GetUserTransactionsByPagination_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserTransactionsByPagination'
+type MockQuerier_GetUserTransactionsByPagination_Call struct {
+	*mock.Call
+}
+
+// GetUserTransactionsByPagination is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db repository.DBTX
+//   - arg repository.GetUserTransactionsByPaginationParams
+func (_e *MockQuerier_Expecter) GetUserTransactionsByPagination(ctx interface{}, db interface{}, arg interface{}) *MockQuerier_GetUserTransactionsByPagination_Call {
+	return &MockQuerier_GetUserTransactionsByPagination_Call{Call: _e.mock.On("GetUserTransactionsByPagination", ctx, db, arg)}
+}
+
+func (_c *MockQuerier_GetUserTransactionsByPagination_Call) Run(run func(ctx context.Context, db repository.DBTX, arg repository.GetUserTransactionsByPaginationParams)) *MockQuerier_GetUserTransactionsByPagination_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repository.DBTX), args[2].(repository.GetUserTransactionsByPaginationParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUserTransactionsByPagination_Call) Return(_a0 []repository.Transaction, _a1 error) *MockQuerier_GetUserTransactionsByPagination_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_GetUserTransactionsByPagination_Call) RunAndReturn(run func(context.Context, repository.DBTX, repository.GetUserTransactionsByPaginationParams) ([]repository.Transaction, error)) *MockQuerier_GetUserTransactionsByPagination_Call {
 	_c.Call.Return(run)
 	return _c
 }
