@@ -14,7 +14,6 @@ INSERT INTO users_roles (
 SELECT * FROM roles 
 WHERE code = $1;
 
-
 -- name: CreateRole :one
 INSERT INTO roles (
     code
@@ -34,3 +33,20 @@ SELECT * FROM routes ORDER BY id ASC;
 
 -- name: GetAllRolesRoutes :many
 SELECT * FROM roles_routes;
+
+
+-- name: CreateRoute :one
+INSERT INTO routes (
+   path 
+) VALUES (
+  $1 
+) RETURNING *;
+
+
+-- name: AddRouteToRole :exec
+INSERT INTO roles_routes (
+    role_id,
+    route_id
+) VALUES (
+  $1, $2 
+);

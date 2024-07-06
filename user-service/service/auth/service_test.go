@@ -396,7 +396,7 @@ func TestService_GetUserDataByToken_DoesNotHaveAccess(t *testing.T) {
 	repo.EXPECT().GetAllRoutes(mock.Anything, mock.Anything).Once().Return([]repository.Route{
 		{
 			ID:   3,
-			Path: "/api/v1/withdraw",
+			Path: "/api/v1/transactions/withdraw",
 		},
 	}, nil)
 	logger := logger.NewLogger()
@@ -416,7 +416,7 @@ func TestService_GetUserDataByToken_DoesNotHaveAccess(t *testing.T) {
 	)
 	_, err = authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
 		Token: token,
-		Path:  "/api/v1/withdraw",
+		Path:  "/api/v1/transactions/withdraw",
 	})
 	assert.Equal(err, auth.ErrAccessDenied)
 	repo.AssertExpectations(t)
@@ -461,7 +461,7 @@ func TestService_GetUserDataByToken_Successful(t *testing.T) {
 	repo.EXPECT().GetAllRoutes(mock.Anything, mock.Anything).Once().Return([]repository.Route{
 		{
 			ID:   1,
-			Path: "/api/v1/withdraw",
+			Path: "/api/v1/transactions/withdraw",
 		},
 	}, nil)
 	logger := logger.NewLogger()
@@ -481,7 +481,7 @@ func TestService_GetUserDataByToken_Successful(t *testing.T) {
 	)
 	userData, err := authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
 		Token: token,
-		Path:  "/api/v1/withdraw",
+		Path:  "/api/v1/transactions/withdraw",
 	})
 	assert.Nil(err)
 	assert.Equal(userData.Email, "test@test.com")

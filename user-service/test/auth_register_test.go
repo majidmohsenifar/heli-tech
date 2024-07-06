@@ -141,7 +141,7 @@ func TestAuth_Register_EmailAlreadyExist(t *testing.T) {
 	assert.Nil(res)
 	e, ok := status.FromError(err)
 	assert.True(ok)
-	assert.Equal(e.Code(), codes.Code(423))
+	assert.Equal(e.Code(), codes.Code(422))
 	assert.Equal(e.Message(), "email already exist")
 }
 

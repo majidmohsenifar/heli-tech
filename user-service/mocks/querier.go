@@ -66,6 +66,50 @@ func (_c *MockQuerier_AddRoleToUser_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// AddRouteToRole provides a mock function with given fields: ctx, db, arg
+func (_m *MockQuerier) AddRouteToRole(ctx context.Context, db repository.DBTX, arg repository.AddRouteToRoleParams) error {
+	ret := _m.Called(ctx, db, arg)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, repository.AddRouteToRoleParams) error); ok {
+		r0 = rf(ctx, db, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockQuerier_AddRouteToRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddRouteToRole'
+type MockQuerier_AddRouteToRole_Call struct {
+	*mock.Call
+}
+
+// AddRouteToRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db repository.DBTX
+//   - arg repository.AddRouteToRoleParams
+func (_e *MockQuerier_Expecter) AddRouteToRole(ctx interface{}, db interface{}, arg interface{}) *MockQuerier_AddRouteToRole_Call {
+	return &MockQuerier_AddRouteToRole_Call{Call: _e.mock.On("AddRouteToRole", ctx, db, arg)}
+}
+
+func (_c *MockQuerier_AddRouteToRole_Call) Run(run func(ctx context.Context, db repository.DBTX, arg repository.AddRouteToRoleParams)) *MockQuerier_AddRouteToRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repository.DBTX), args[2].(repository.AddRouteToRoleParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_AddRouteToRole_Call) Return(_a0 error) *MockQuerier_AddRouteToRole_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuerier_AddRouteToRole_Call) RunAndReturn(run func(context.Context, repository.DBTX, repository.AddRouteToRoleParams) error) *MockQuerier_AddRouteToRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateRole provides a mock function with given fields: ctx, db, code
 func (_m *MockQuerier) CreateRole(ctx context.Context, db repository.DBTX, code string) (repository.Role, error) {
 	ret := _m.Called(ctx, db, code)
@@ -116,6 +160,60 @@ func (_c *MockQuerier_CreateRole_Call) Return(_a0 repository.Role, _a1 error) *M
 }
 
 func (_c *MockQuerier_CreateRole_Call) RunAndReturn(run func(context.Context, repository.DBTX, string) (repository.Role, error)) *MockQuerier_CreateRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateRoute provides a mock function with given fields: ctx, db, path
+func (_m *MockQuerier) CreateRoute(ctx context.Context, db repository.DBTX, path string) (repository.Route, error) {
+	ret := _m.Called(ctx, db, path)
+
+	var r0 repository.Route
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, string) (repository.Route, error)); ok {
+		return rf(ctx, db, path)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, repository.DBTX, string) repository.Route); ok {
+		r0 = rf(ctx, db, path)
+	} else {
+		r0 = ret.Get(0).(repository.Route)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, repository.DBTX, string) error); ok {
+		r1 = rf(ctx, db, path)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockQuerier_CreateRoute_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateRoute'
+type MockQuerier_CreateRoute_Call struct {
+	*mock.Call
+}
+
+// CreateRoute is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db repository.DBTX
+//   - path string
+func (_e *MockQuerier_Expecter) CreateRoute(ctx interface{}, db interface{}, path interface{}) *MockQuerier_CreateRoute_Call {
+	return &MockQuerier_CreateRoute_Call{Call: _e.mock.On("CreateRoute", ctx, db, path)}
+}
+
+func (_c *MockQuerier_CreateRoute_Call) Run(run func(ctx context.Context, db repository.DBTX, path string)) *MockQuerier_CreateRoute_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repository.DBTX), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateRoute_Call) Return(_a0 repository.Route, _a1 error) *MockQuerier_CreateRoute_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockQuerier_CreateRoute_Call) RunAndReturn(run func(context.Context, repository.DBTX, string) (repository.Route, error)) *MockQuerier_CreateRoute_Call {
 	_c.Call.Return(run)
 	return _c
 }

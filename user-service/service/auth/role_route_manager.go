@@ -62,7 +62,6 @@ func (m *RoleRouteManager) HasUserAccessToRoute(ctx context.Context, userID int6
 			break
 		}
 	}
-	fmt.Println("routeID", routeID)
 	if routeID == 0 {
 		return false, fmt.Errorf("route with path %s not found", path)
 	}

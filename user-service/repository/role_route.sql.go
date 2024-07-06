@@ -28,6 +28,25 @@ func (q *Queries) AddRoleToUser(ctx context.Context, db DBTX, arg AddRoleToUserP
 	return err
 }
 
+const addRouteToRole = `-- name: AddRouteToRole :exec
+INSERT INTO roles_routes (
+    role_id,
+    route_id
+) VALUES (
+  $1, $2 
+)
+`
+
+type AddRouteToRoleParams struct {
+	RoleID  int32
+	RouteID int32
+}
+
+func (q *Queries) AddRouteToRole(ctx context.Context, db DBTX, arg AddRouteToRoleParams) error {
+	_, err := db.Exec(ctx, addRouteToRole, arg.RoleID, arg.RouteID)
+	return err
+}
+
 const createRole = `-- name: CreateRole :one
 INSERT INTO roles (
     code
@@ -40,6 +59,21 @@ func (q *Queries) CreateRole(ctx context.Context, db DBTX, code string) (Role, e
 	row := db.QueryRow(ctx, createRole, code)
 	var i Role
 	err := row.Scan(&i.ID, &i.Code)
+	return i, err
+}
+
+const createRoute = `-- name: CreateRoute :one
+INSERT INTO routes (
+   path 
+) VALUES (
+  $1 
+) RETURNING id, path, description
+`
+
+func (q *Queries) CreateRoute(ctx context.Context, db DBTX, path string) (Route, error) {
+	row := db.QueryRow(ctx, createRoute, path)
+	var i Route
+	err := row.Scan(&i.ID, &i.Path, &i.Description)
 	return i, err
 }
 
