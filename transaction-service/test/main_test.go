@@ -66,8 +66,6 @@ func getViperConfig() *viper.Viper {
 		return viperConfig
 	}
 	viperConfig = config.NewViper("../config/")
-	viperConfig.Set("jwt.privatekey", "../config/jwt/private.pem")
-	viperConfig.Set("jwt.publickey", "../config/jwt/public.pem")
 	return viperConfig
 }
 

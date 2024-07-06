@@ -1,0 +1,4 @@
+kafka:
+  urls: 
+  - "kafka0:9092"
+
