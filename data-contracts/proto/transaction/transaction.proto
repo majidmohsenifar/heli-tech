@@ -16,9 +16,10 @@ message WithdrawRequest {
 }
 
 message WithdrawResponse {
-	int64 createdAt = 1;
+	int64 id = 1;
 	double amount = 2;
     double newBalance  = 3;
+	int64 createdAt = 4;
 }
 
 message DepositRequest {
@@ -27,8 +28,9 @@ message DepositRequest {
 }
 
 message DepositResponse {
-	int64 createdAt = 1;
+	int64 id = 1;
 	double amount = 2;
     double newBalance  = 3;
+	int64 createdAt = 4;
 }
 
