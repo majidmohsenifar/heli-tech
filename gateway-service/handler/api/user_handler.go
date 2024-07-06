@@ -14,6 +14,8 @@ type UserHandler struct {
 }
 
 // This endpoint allows user to register
+//
+//
 //	@Summary		register user
 //	@Description	allows user to register
 //	@Tags			User
@@ -53,7 +55,9 @@ func (h *UserHandler) Register(c *gin.Context) {
 	MakeSuccessResponse(c.Writer, nil, "successfully registered")
 }
 
+//
 // This endpoint allows user to login
+//
 //	@Summary		login user
 //	@Description	allows user to login
 //	@Tags			User
@@ -61,9 +65,10 @@ func (h *UserHandler) Register(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Security		ApiKeyAuth
-//	@Param			params	body		user.RegisterParams	false	"Register-Params"
+//	@Param			params	body		user.LoginParams	false	"Login-Params"
 //	@Success		200		{object}	ResponseSuccess
 //	@Failure		400		{object}	ResponseFailure
+//	@Failure		401		{object}	ResponseFailure
 //	@Failure		500		{object}	ResponseFailure
 //	@Router			/api/v1/auth/login [post]
 func (h *UserHandler) Login(c *gin.Context) {

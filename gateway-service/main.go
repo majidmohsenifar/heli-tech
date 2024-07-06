@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	Address = "localhost:8080"
+	Address = "0.0.0.0:8080"
 )
 
 func main() {

@@ -82,6 +82,8 @@ func New(
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Description = "Heli tech API documentation"
 	docs.SwaggerInfo.BasePath = "/"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	router := &Router{}
 	r := gin.New()
@@ -105,7 +107,7 @@ func New(
 		authRoutes := v1.Group("/auth")
 		{
 			router.AddRoute(authRoutes, http.MethodPost, "/register", "register", userHandler.Register)
-			router.AddRoute(authRoutes, http.MethodPost, "/login", "login", userHandler.Register)
+			router.AddRoute(authRoutes, http.MethodPost, "/login", "login", userHandler.Login)
 
 		}
 

@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   user-db:
     image: "postgres"
@@ -28,6 +27,24 @@ services:
     image: "redis:6.2.2"
     ports:
       - "6379:6379"
+
+  gateway-srv:
+    #command: bash -c "go build -o main ./cmd && ./main httpd 8000 8001"
+    build:
+      context: .
+      args:
+        SRV: "./gateway-service"
+    restart: always
+    volumes:
+      - ./gateway-service/config:/app/config
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+
+  #transaction-srv:
+  #user-srv:
+  #notification-srv:
+  #migrate:
 
   kafka0:
     #image: confluentinc/cp-kafka:7.2.1.arm64

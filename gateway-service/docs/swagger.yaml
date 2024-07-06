@@ -61,6 +61,16 @@ definitions:
     required:
     - amount
     type: object
+  user.LoginParams:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   user.RegisterParams:
     properties:
       confrimPassword:
@@ -87,11 +97,11 @@ paths:
       description: allows user to login
       operationId: login
       parameters:
-      - description: Register-Params
+      - description: Login-Params
         in: body
         name: params
         schema:
-          $ref: '#/definitions/user.RegisterParams'
+          $ref: '#/definitions/user.LoginParams'
       produces:
       - application/json
       responses:
@@ -101,6 +111,10 @@ paths:
             $ref: '#/definitions/api.ResponseSuccess'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ResponseFailure'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/api.ResponseFailure'
         "500":

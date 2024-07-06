@@ -40,11 +40,11 @@ const docTemplate = `{
                 "operationId": "login",
                 "parameters": [
                     {
-                        "description": "Register-Params",
+                        "description": "Login-Params",
                         "name": "params",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/user.RegisterParams"
+                            "$ref": "#/definitions/user.LoginParams"
                         }
                     }
                 ],
@@ -57,6 +57,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ResponseFailure"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/api.ResponseFailure"
                         }
@@ -434,6 +440,21 @@ const docTemplate = `{
             "properties": {
                 "amount": {
                     "type": "number"
+                }
+            }
+        },
+        "user.LoginParams": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },
