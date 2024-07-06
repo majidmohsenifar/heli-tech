@@ -65,12 +65,12 @@ func (s *Service) Register(ctx context.Context, params RegisterParams) error {
 
 	//get the default role
 	role, err := s.roleRouteManager.GetRoleByCode(ctx, RoleEndUser)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+	if err != nil && !errors.Is(err, ErrDefaultRoleDoesNotExist) {
 		s.logger.Error("cannot get endUser role", err)
 		return fmt.Errorf("cannot get the default role")
 	}
-	if errors.Is(err, pgx.ErrNoRows) {
-		return fmt.Errorf("default role does not exist")
+	if errors.Is(err, ErrDefaultRoleDoesNotExist) {
+		return ErrDefaultRoleDoesNotExist
 	}
 	dbTx, err := s.db.Begin(ctx)
 	if err != nil {
@@ -128,7 +128,6 @@ func (s *Service) Login(ctx context.Context, params LoginParams) (string, error)
 }
 
 func (s *Service) GetUserDataByToken(ctx context.Context, params GetUserDataByTokenParams) (GetUserDataByTokenResponse, error) {
-	//TODO: we should check path here too for user access
 	email, err := s.jwtService.GetUsernameFromToken(params.Token)
 	if err != nil {
 		return GetUserDataByTokenResponse{}, ErrInvalidToken
@@ -139,6 +138,14 @@ func (s *Service) GetUserDataByToken(ctx context.Context, params GetUserDataByTo
 		return GetUserDataByTokenResponse{}, fmt.Errorf("something went wrong")
 	}
 	if err == pgx.ErrNoRows {
+		return GetUserDataByTokenResponse{}, ErrAccessDenied
+	}
+	hasAccess, err := s.roleRouteManager.HasUserAccessToRoute(ctx, user.ID, params.Path)
+	if err != nil {
+		s.logger.Error("cannot check user access", err)
+		return GetUserDataByTokenResponse{}, fmt.Errorf("cannot check user access")
+	}
+	if !hasAccess {
 		return GetUserDataByTokenResponse{}, ErrAccessDenied
 	}
 	return GetUserDataByTokenResponse{

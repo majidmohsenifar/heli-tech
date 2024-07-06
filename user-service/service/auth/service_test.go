@@ -68,7 +68,7 @@ func TestService_Register_DefaultRoleDoesNotExist(t *testing.T) {
 	assert := assert.New(t)
 	repo := new(mocks.MockQuerier)
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-	repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{}, pgx.ErrNoRows)
+	repo.EXPECT().GetAllRoles(mock.Anything, mock.Anything).Once().Return([]repository.Role{}, nil)
 	passwordEncoder := core.NewPasswordEncoder()
 	roleRouteManager := auth.NewRoleRouteManager(nil, repo)
 	logger := logger.NewLogger()
@@ -98,7 +98,12 @@ func TestService_Register_CannotCreateUser(t *testing.T) {
 	passwordEncoder := core.NewPasswordEncoder()
 	repo := new(mocks.MockQuerier)
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-	repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
+	repo.EXPECT().GetAllRoles(mock.Anything, mock.Anything).Once().Return([]repository.Role{
+		{
+			ID:   1,
+			Code: auth.RoleEndUser,
+		},
+	}, nil)
 	repo.EXPECT().CreateUser(
 		mock.Anything,
 		mock.Anything,
@@ -141,7 +146,12 @@ func TestService_Register_CannotAddDefaultRole(t *testing.T) {
 	passwordEncoder := core.NewPasswordEncoder()
 	repo := new(mocks.MockQuerier)
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-	repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
+	repo.EXPECT().GetAllRoles(mock.Anything, mock.Anything).Once().Return([]repository.Role{
+		{
+			ID:   1,
+			Code: auth.RoleEndUser,
+		},
+	}, nil)
 	repo.EXPECT().CreateUser(
 		mock.Anything,
 		mock.Anything,
@@ -198,7 +208,12 @@ func TestService_Register_Successful(t *testing.T) {
 	passwordEncoder := core.NewPasswordEncoder()
 	repo := new(mocks.MockQuerier)
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{}, pgx.ErrNoRows)
-	repo.EXPECT().GetRoleByCode(mock.Anything, mock.Anything, auth.RoleEndUser).Once().Return(repository.Role{ID: 1, Code: auth.RoleEndUser}, nil)
+	repo.EXPECT().GetAllRoles(mock.Anything, mock.Anything).Once().Return([]repository.Role{
+		{
+			ID:   1,
+			Code: auth.RoleEndUser,
+		},
+	}, nil)
 	repo.EXPECT().CreateUser(
 		mock.Anything,
 		mock.Anything,
@@ -342,27 +357,131 @@ func TestService_GetUserDataByToken_InvalidToken(t *testing.T) {
 	assert.Equal(err, auth.ErrInvalidToken)
 }
 
-func TestService_GetUserDataByToken_Successful(t *testing.T) {
+func TestService_GetUserDataByToken_DoesNotHaveAccess(t *testing.T) {
 	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	assert.Nil(err)
+	defer dbMock.Close()
 	repo := new(mocks.MockQuerier)
 	passwordEncoder := core.NewPasswordEncoder()
 	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1}, nil)
+	repo.EXPECT().GetUserRolesByUserID(mock.Anything, mock.Anything, int64(1)).Once().Return([]repository.UsersRole{
+		{
+			UserID: 1,
+			RoleID: 1,
+		},
+		{
+			UserID: 1,
+			RoleID: 2,
+		},
+	}, nil)
+	repo.EXPECT().GetAllRolesRoutes(mock.Anything, mock.Anything).Once().Return([]repository.RolesRoute{
+		{
+			RoleID:  1,
+			RouteID: 1,
+		},
+		{
+			RoleID:  2,
+			RouteID: 1,
+		},
+		{
+			RoleID:  1,
+			RouteID: 2,
+		},
+		{
+			RoleID:  2,
+			RouteID: 2,
+		},
+	}, nil)
+	repo.EXPECT().GetAllRoutes(mock.Anything, mock.Anything).Once().Return([]repository.Route{
+		{
+			ID:   3,
+			Path: "/api/v1/withdraw",
+		},
+	}, nil)
 	logger := logger.NewLogger()
 	viper := config.NewViper("../../config/")
 	jwtService, err := jwt.NewService(viper)
 	assert.Nil(err)
 	token, err := jwtService.GenerateToken("test@test.com")
 	assert.Nil(err)
+	roleRouteManager := auth.NewRoleRouteManager(dbMock, repo)
 	authService := auth.NewService(
-		nil,
+		dbMock,
 		repo,
 		passwordEncoder,
 		jwtService,
 		logger,
-		nil,
+		roleRouteManager,
+	)
+	_, err = authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
+		Token: token,
+		Path:  "/api/v1/withdraw",
+	})
+	assert.Equal(err, auth.ErrAccessDenied)
+	repo.AssertExpectations(t)
+}
+
+func TestService_GetUserDataByToken_Successful(t *testing.T) {
+	assert := assert.New(t)
+	dbMock, err := pgxmock.NewPool()
+	assert.Nil(err)
+	defer dbMock.Close()
+	repo := new(mocks.MockQuerier)
+	passwordEncoder := core.NewPasswordEncoder()
+	repo.EXPECT().GetUserByEmail(mock.Anything, mock.Anything, "test@test.com").Once().Return(repository.User{ID: 1}, nil)
+	repo.EXPECT().GetUserRolesByUserID(mock.Anything, mock.Anything, int64(1)).Once().Return([]repository.UsersRole{
+		{
+			UserID: 1,
+			RoleID: 1,
+		},
+		{
+			UserID: 1,
+			RoleID: 2,
+		},
+	}, nil)
+	repo.EXPECT().GetAllRolesRoutes(mock.Anything, mock.Anything).Once().Return([]repository.RolesRoute{
+		{
+			RoleID:  1,
+			RouteID: 1,
+		},
+		{
+			RoleID:  2,
+			RouteID: 1,
+		},
+		{
+			RoleID:  1,
+			RouteID: 2,
+		},
+		{
+			RoleID:  2,
+			RouteID: 2,
+		},
+	}, nil)
+	repo.EXPECT().GetAllRoutes(mock.Anything, mock.Anything).Once().Return([]repository.Route{
+		{
+			ID:   1,
+			Path: "/api/v1/withdraw",
+		},
+	}, nil)
+	logger := logger.NewLogger()
+	viper := config.NewViper("../../config/")
+	jwtService, err := jwt.NewService(viper)
+	assert.Nil(err)
+	token, err := jwtService.GenerateToken("test@test.com")
+	assert.Nil(err)
+	roleRouteManager := auth.NewRoleRouteManager(dbMock, repo)
+	authService := auth.NewService(
+		dbMock,
+		repo,
+		passwordEncoder,
+		jwtService,
+		logger,
+		roleRouteManager,
 	)
 	userData, err := authService.GetUserDataByToken(context.Background(), auth.GetUserDataByTokenParams{
 		Token: token,
+		Path:  "/api/v1/withdraw",
 	})
 	assert.Nil(err)
 	assert.Equal(userData.Email, "test@test.com")

@@ -25,3 +25,12 @@ INSERT INTO roles (
 -- name: GetUserRolesByUserID :many
 SELECT * FROM users_roles 
 WHERE user_id = $1;
+
+-- name: GetAllRoles :many
+SELECT * FROM roles ORDER BY id ASC;
+
+-- name: GetAllRoutes :many
+SELECT * FROM routes ORDER BY id ASC;
+
+-- name: GetAllRolesRoutes :many
+SELECT * FROM roles_routes;

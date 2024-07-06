@@ -43,6 +43,78 @@ func (q *Queries) CreateRole(ctx context.Context, db DBTX, code string) (Role, e
 	return i, err
 }
 
+const getAllRoles = `-- name: GetAllRoles :many
+SELECT id, code FROM roles ORDER BY id ASC
+`
+
+func (q *Queries) GetAllRoles(ctx context.Context, db DBTX) ([]Role, error) {
+	rows, err := db.Query(ctx, getAllRoles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Role
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(&i.ID, &i.Code); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllRolesRoutes = `-- name: GetAllRolesRoutes :many
+SELECT role_id, route_id FROM roles_routes
+`
+
+func (q *Queries) GetAllRolesRoutes(ctx context.Context, db DBTX) ([]RolesRoute, error) {
+	rows, err := db.Query(ctx, getAllRolesRoutes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []RolesRoute
+	for rows.Next() {
+		var i RolesRoute
+		if err := rows.Scan(&i.RoleID, &i.RouteID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllRoutes = `-- name: GetAllRoutes :many
+SELECT id, path, description FROM routes ORDER BY id ASC
+`
+
+func (q *Queries) GetAllRoutes(ctx context.Context, db DBTX) ([]Route, error) {
+	rows, err := db.Query(ctx, getAllRoutes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Route
+	for rows.Next() {
+		var i Route
+		if err := rows.Scan(&i.ID, &i.Path, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRoleByCode = `-- name: GetRoleByCode :one
 SELECT id, code FROM roles 
 WHERE code = $1

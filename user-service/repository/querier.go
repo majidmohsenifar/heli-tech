@@ -12,6 +12,9 @@ type Querier interface {
 	AddRoleToUser(ctx context.Context, db DBTX, arg AddRoleToUserParams) error
 	CreateRole(ctx context.Context, db DBTX, code string) (Role, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
+	GetAllRoles(ctx context.Context, db DBTX) ([]Role, error)
+	GetAllRolesRoutes(ctx context.Context, db DBTX) ([]RolesRoute, error)
+	GetAllRoutes(ctx context.Context, db DBTX) ([]Route, error)
 	GetRoleByCode(ctx context.Context, db DBTX, code string) (Role, error)
 	GetRouteByPath(ctx context.Context, db DBTX, path string) (Route, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
