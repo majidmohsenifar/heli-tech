@@ -62,16 +62,17 @@ func (r *Router) AddRoute(
 	return nil
 }
 
-//	@license.name				Apache 2.0
-//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@query.collection.format	multi
-//	@externalDocs.description	OpenAPI
-//	@externalDocs.url			https://swagger.io/resources/open-api/
+// @license.name				Apache 2.0
+// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @query.collection.format	multi
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func New(
 	userHandler *api.UserHandler,
+	transactionHandler *api.TransactionHandler,
 	userService *user.Service,
 	logger *slog.Logger,
 ) *Router {
@@ -100,18 +101,20 @@ func New(
 	})
 
 	v1 := r.Group("/api/v1")
-	//these route do not need token
-	router.AddRoute(v1, http.MethodPost, "/auth/register", "register", userHandler.Register)
-	router.AddRoute(v1, http.MethodPost, "/auth/login", "login", userHandler.Register)
-
-	securedV1 := r.Group("/api/v1")
-	securedV1.Use(middleware.JwtMiddleware(userService))
 	{
-		paymentRoutes := securedV1.Group("/payment")
+		authRoutes := v1.Group("/auth")
 		{
-			//TODO: handle these routes later
-			router.AddRoute(paymentRoutes, http.MethodPost, "/withdraw", "withdraw", userHandler.Register)
-			router.AddRoute(paymentRoutes, http.MethodPost, "/deposit", "deposit", userHandler.Register)
+			router.AddRoute(authRoutes, http.MethodPost, "/register", "register", userHandler.Register)
+			router.AddRoute(authRoutes, http.MethodPost, "/login", "login", userHandler.Register)
+
+		}
+
+		transactionRoutes := v1.Group("/transactions")
+		transactionRoutes.Use(middleware.JwtMiddleware(userService))
+		{
+			router.AddRoute(transactionRoutes, http.MethodGet, "", "user-transactions", transactionHandler.GetUserTransactions)
+			router.AddRoute(transactionRoutes, http.MethodPost, "/withdraw", "withdraw", transactionHandler.Withdraw)
+			router.AddRoute(transactionRoutes, http.MethodPost, "/deposit", "deposit", transactionHandler.Deposit)
 		}
 	}
 	router.Handler = r

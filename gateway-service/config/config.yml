@@ -1,2 +1,4 @@
 usersrv:
   address: "localhost:50051"
+transactionsrv:
+  address: "localhost:50052"

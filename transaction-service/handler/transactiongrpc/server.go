@@ -80,7 +80,7 @@ func (s *server) GetTransactions(
 	if req.UserID < 1 {
 		return nil, status.Error(codes.Code(400), "userID is required")
 	}
-	if req.PageSize > 100 {
+	if req.PageSize > 100 || req.PageSize <= 0 {
 		req.PageSize = 100
 	}
 	transactions, err := s.transactionService.GetUserTransactions(ctx, transaction.GetUserTransactionsParams{

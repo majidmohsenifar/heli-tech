@@ -13,7 +13,6 @@ const (
 	UserDataKey       = "User"
 	Authorization     = "Authorization"
 	Bearer            = "Bearer"
-	UserProfileCtxKey = "UserProfile"
 )
 
 func JwtMiddleware(userService *user.Service) gin.HandlerFunc {

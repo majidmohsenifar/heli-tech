@@ -5,11 +5,13 @@ import (
 	"os"
 
 	"github.com/go-playground/validator/v10"
+	transactionpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/transaction"
 	userpb "github.com/majidmohsenifar/heli-tech/data-contracts/proto/user"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/config"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/handler/api"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/handler/api/router"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/logger"
+	"github.com/majidmohsenifar/heli-tech/gateway-service/service/transaction"
 	"github.com/majidmohsenifar/heli-tech/gateway-service/service/user"
 
 	"google.golang.org/grpc"
@@ -33,14 +35,27 @@ func main() {
 		logger.Error("Failed to dial user service", err)
 		os.Exit(1)
 	}
+	transactionConn, err := grpc.NewClient(
+		viper.GetString("transactionsrv.address"),
+		//config.UserServiceUrl(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		logger.Error("Failed to dial transaction service", err)
+		os.Exit(1)
+	}
 	userClient := userpb.NewUserClient(userConn)
+	transactionClient := transactionpb.NewTransactionClient(transactionConn)
 
 	userService := user.NewService(userClient, logger)
+	transactionService := transaction.NewService(transactionClient, logger)
 	validator := validator.New()
 	userHandler := api.NewUserHandler(userService, validator)
+	transactionHandler := api.NewTransactionHandler(transactionService, validator)
 	api.InitialSwagger()
 	router := router.New(
 		userHandler,
+		transactionHandler,
 		userService,
 		logger,
 	)
