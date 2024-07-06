@@ -367,6 +367,7 @@ func TestService_Withdraw_Successful(t *testing.T) {
 		Amount: 100,
 	})
 	assert.Nil(err)
+	assert.Equal(res.ID, int64(1))
 	assert.Equal(res.Amount, 100.0)
 	assert.Equal(res.NewBalance, 120.0)
 	assert.Greater(res.CreatedAt, int64(0))
@@ -630,6 +631,7 @@ func TestService_Deposit_Successful(t *testing.T) {
 		Amount: 100,
 	})
 	assert.Nil(err)
+	assert.Equal(res.ID, int64(1))
 	assert.Equal(res.Amount, 100.0)
 	assert.Equal(res.NewBalance, 120.0)
 	assert.Greater(res.CreatedAt, int64(0))

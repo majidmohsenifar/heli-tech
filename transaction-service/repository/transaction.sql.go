@@ -40,3 +40,20 @@ func (q *Queries) CreateTransaction(ctx context.Context, db DBTX, arg CreateTran
 	)
 	return i, err
 }
+
+const getTransactionByID = `-- name: GetTransactionByID :one
+SELECT id, user_id, kind, amount, created_at from transactions WHERE id = $1
+`
+
+func (q *Queries) GetTransactionByID(ctx context.Context, db DBTX, id int64) (Transaction, error) {
+	row := db.QueryRow(ctx, getTransactionByID, id)
+	var i Transaction
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Kind,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
+}

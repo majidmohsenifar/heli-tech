@@ -9,3 +9,5 @@ INSERT INTO transactions (
 ) RETURNING *;
 
 
+-- name: GetTransactionByID :one
+SELECT * from transactions WHERE id = $1;

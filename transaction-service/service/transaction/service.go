@@ -34,6 +34,7 @@ type WithdrawParams struct {
 }
 
 type TransactionDetail struct {
+	ID         int64
 	CreatedAt  int64
 	Amount     float64
 	NewBalance float64
@@ -125,6 +126,7 @@ func (s *Service) Withdraw(ctx context.Context, params WithdrawParams) (Transact
 		CreatedAt:     tx.CreatedAt.Time.Unix(),
 	})
 	return TransactionDetail{
+		ID:         tx.ID,
 		CreatedAt:  time.Now().Unix(),
 		Amount:     params.Amount,
 		NewBalance: newBalance,
@@ -195,6 +197,7 @@ func (s *Service) Deposit(ctx context.Context, params DepositParams) (Transactio
 		CreatedAt:     tx.CreatedAt.Time.Unix(),
 	})
 	return TransactionDetail{
+		ID:         tx.ID,
 		CreatedAt:  time.Now().Unix(),
 		Amount:     params.Amount,
 		NewBalance: newBalance,

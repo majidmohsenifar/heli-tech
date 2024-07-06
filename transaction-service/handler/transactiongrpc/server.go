@@ -38,6 +38,7 @@ func (s *server) Withdraw(
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}
 	return &transactionpb.WithdrawResponse{
+		Id:         result.ID,
 		CreatedAt:  result.CreatedAt,
 		Amount:     result.Amount,
 		NewBalance: result.NewBalance,
@@ -65,6 +66,7 @@ func (s *server) Deposit(
 		return nil, status.Error(codes.Code(500), "something went wrong")
 	}
 	return &transactionpb.DepositResponse{
+		Id:         result.ID,
 		CreatedAt:  result.CreatedAt,
 		Amount:     result.Amount,
 		NewBalance: result.NewBalance,

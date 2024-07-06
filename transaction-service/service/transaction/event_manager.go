@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	TopicTransactionCreated = "transaction.Created"
+	TopicTransactionCreated = "transaction.created"
 )
 
 type TransactionEventManager interface {
