@@ -40,15 +40,17 @@ func main() {
 	passwordEncoder := core.NewPasswordEncoder()
 	jwtService, err := jwt.NewService(viper)
 	if err != nil {
-		logger.Error("failed to jwt service", err)
+		logger.Error("failed to create jwt service", err)
 		os.Exit(1)
 	}
+	roleRouteManager := auth.NewRoleRouteManager(dbClient, repo)
 	authService := auth.NewService(
 		dbClient,
 		repo,
 		passwordEncoder,
 		jwtService,
 		logger,
+		roleRouteManager,
 	)
 
 	grpcPanicRecoveryHandler := func(p any) error {

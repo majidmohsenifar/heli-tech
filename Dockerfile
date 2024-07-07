@@ -1,7 +1,9 @@
 FROM golang:1.22.4-bullseye AS BUILD
 ARG SRV
 WORKDIR /app
-RUN go env -w GOPROXY=https://goproxy.cn
+#RUN go env -w GOPROXY=
+RUN go env -w GOPROXY=https://goproxy.cn,direct
+
 COPY $SRV/go.mod $SRV/go.sum ./
 RUN go mod download -x
 COPY $SRV .

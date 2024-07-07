@@ -29,7 +29,6 @@ services:
       - "6379:6379"
 
   gateway-srv:
-    #command: bash -c "go build -o main ./cmd && ./main httpd 8000 8001"
     build:
       context: .
       args:
@@ -41,9 +40,38 @@ services:
       - "8080:8080"
       - "8081:8081"
 
-  #transaction-srv:
-  #user-srv:
-  #notification-srv:
+  transaction-srv:
+    build:
+      context: .
+      args:
+        SRV: "./transaction-service"
+    restart: always
+    volumes:
+      - ./transaction-service/config:/app/config
+    depends_on:
+      - transaction-db
+      - kafka0
+      - redis
+
+  user-srv:
+    build:
+      context: .
+      args:
+        SRV: "./user-service"
+    restart: always
+    volumes:
+      - ./user-service/config:/app/config
+    depends_on:
+      - user-db
+
+  notification-srv:
+    build:
+      context: .
+      args:
+        SRV: "./notification-service"
+    restart: always
+    volumes:
+      - ./notification-service/config:/app/config
   #migrate:
 
   kafka0:
