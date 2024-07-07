@@ -32,7 +32,7 @@ func TestService_Withdraw_CannotObtainLock(t *testing.T) {
 
 	repo := new(mocks.MockQuerier)
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	//first we try to obtain lock so the logic would encounter error
@@ -71,7 +71,7 @@ func TestService_Withdraw_NoBalanceInDB(t *testing.T) {
 		int64(1),
 	).Once().Return(repository.UserBalance{}, pgx.ErrNoRows)
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -107,7 +107,7 @@ func TestService_Withdraw_BalanceExistInDB_ButNotSufficient(t *testing.T) {
 		int64(1),
 	).Once().Return(repository.UserBalance{Amount: pgtype.Numeric{Int: big.NewInt(50), Valid: true}}, nil)
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -165,7 +165,7 @@ func TestService_Withdraw_CannotCreateTransaction(t *testing.T) {
 	).Once().Return(repository.Transaction{}, errors.New("db error"))
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -242,7 +242,7 @@ func TestService_Withdraw_CannotInsertOrIncreaseUserBalance(t *testing.T) {
 	).Once().Return(repository.UserBalance{}, errors.New("db error"))
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -325,7 +325,7 @@ func TestService_Withdraw_Successful(t *testing.T) {
 	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(120), Valid: true}}, nil)
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -383,7 +383,7 @@ func TestService_Deposit_CannotObtainLock(t *testing.T) {
 
 	repo := new(mocks.MockQuerier)
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	//first we try to obtain lock so the logic would encounter error
@@ -439,7 +439,7 @@ func TestService_Deposit_CannotCreateTransaction(t *testing.T) {
 	).Once().Return(repository.Transaction{}, errors.New("db error"))
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -511,7 +511,7 @@ func TestService_Deposit_CannotInsertOrIncreaseUserBalance(t *testing.T) {
 	).Once().Return(repository.UserBalance{}, errors.New("db error"))
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
@@ -589,7 +589,7 @@ func TestService_Deposit_Successful(t *testing.T) {
 	).Once().Return(repository.UserBalance{ID: 1, Amount: pgtype.Numeric{Int: big.NewInt(120), Valid: true}}, nil)
 
 	s := miniredis.RunT(t)
-	redisClient, err := core.NewRedisClient(fmt.Sprintf("redis://%s", s.Addr()))
+	redisClient, err := core.NewRedisClient(s.Addr())
 	assert.Nil(err)
 	redisLocker := core.NewRedisLocker(redisClient)
 	logger := logger.NewLogger()
