@@ -72,7 +72,24 @@ services:
     restart: always
     volumes:
       - ./notification-service/config:/app/config
-  #migrate:
+
+  user-migrate:
+    image: migrate/migrate
+    depends_on:
+      - user-db
+    volumes:
+      - ./user-service/db/migrations:/user-migrations
+    command:
+      [ "-path", "/user-migrations", "-database",  "postgres://postgres:postgres@user-db:5432/user_db?sslmode=disable", "up" ]
+  
+  transaction-migrate:
+    image: migrate/migrate
+    depends_on:
+      - transaction-db
+    volumes:
+      - ./transaction-service/db/migrations:/transaction-migrations
+    command:
+      [ "-path", "/transaction-migrations", "-database",  "postgres://postgres:postgres@transaction-db:5432/transaction_db?sslmode=disable", "up" ]
 
   kafka0:
     #image: confluentinc/cp-kafka:7.2.1.arm64
