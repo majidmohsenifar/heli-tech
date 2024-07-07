@@ -40,7 +40,7 @@ func JwtMiddleware(userService *user.Service) gin.HandlerFunc {
 						"success": false,
 						"error": gin.H{
 							"code":    http.StatusForbidden,
-							"message": "cannot get user detail",
+							"message": "user does not have access",
 						},
 					})
 				return
@@ -51,7 +51,7 @@ func JwtMiddleware(userService *user.Service) gin.HandlerFunc {
 					"success": false,
 					"error": gin.H{
 						"code":    int(e.Code()),
-						"message": "cannot get user detail",
+						"message": "user does not have access",
 					},
 				})
 			return
