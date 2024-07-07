@@ -47,9 +47,9 @@ the locking mechanism is provided by redis.
 
 
 ###Other considerations
-if you have new macbook with arm chip, you may change the kafka image in docker-compose.yml line 95.
+- if you have new macbook with arm chip, you may change the kafka image in docker-compose.yml line 95.
 
-
-
-
-
+-each services directory structure consists 3 main layer, handler, services and repository.
+* handler layer is responsible for the requests and response and also consuming from message brokers.
+* service layer is responsible for the bussiness logic and can be called by handler layer.
+* repositry layer is responsible for data access and read and write to database, the repo methods are called by service layer.
