@@ -7,12 +7,12 @@
 - [x] Notification-Service
 
 # Gateway-Service
-- [x] Gateway-Service is a service that acts as a gateway for all the services.
+- Gateway-Service is a service that acts as a gateway for all the services.
 it exposes a rest API and calls other services using GRPC.
 - the rest API is developed using golang gin router.
 - this service also serves the swagger.
 
-# User-Service (AKA Auth-Service)
+# User-Service (or Auth-Service)
 - [x] this is a service that manages user related APIs.
 - it serves requests using grpc.
 - it also handle the auth using JWT.
