@@ -87,7 +87,13 @@ func New(
 
 	router := &Router{}
 	r := gin.New()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type,Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Accept, Origin, Cache-Control, X-Requested-With, Access-Control-Allow-Origin"},
+		AllowCredentials: true,
+	}))
+
 	r.Use(globalRecover(logger))
 
 	r.NoRoute(func(c *gin.Context) {

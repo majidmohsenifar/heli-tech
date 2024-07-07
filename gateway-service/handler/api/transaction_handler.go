@@ -58,15 +58,15 @@ func (h *TransactionHandler) Withdraw(c *gin.Context) {
 		MakeErrorResponseWithCode(
 			c.Writer,
 			http.StatusUnauthorized,
-			"cannot get user data from token")
+			"cannot get user data from token 1")
 		return
 	}
-	userData, ok := userDataAny.(*user.UserData)
+	userData, ok := userDataAny.(user.UserData)
 	if !ok {
 		MakeErrorResponseWithCode(
 			c.Writer,
 			http.StatusUnauthorized,
-			"cannot get user data from token")
+			"cannot get user data from token 2")
 		return
 	}
 
@@ -124,7 +124,7 @@ func (h *TransactionHandler) Deposit(c *gin.Context) {
 			"cannot get user data from token")
 		return
 	}
-	userData, ok := userDataAny.(*user.UserData)
+	userData, ok := userDataAny.(user.UserData)
 	if !ok {
 		MakeErrorResponseWithCode(
 			c.Writer,
@@ -139,7 +139,7 @@ func (h *TransactionHandler) Deposit(c *gin.Context) {
 		MakeErrorResponseWithoutCode(c.Writer, err)
 		return
 	}
-	MakeSuccessResponse(c.Writer, res, "successfully withdrawed")
+	MakeSuccessResponse(c.Writer, res, "successfully deposited")
 }
 
 // This endpoint allows user to see his/her transactions
@@ -188,7 +188,7 @@ func (h *TransactionHandler) GetUserTransactions(c *gin.Context) {
 			"cannot get user data from token")
 		return
 	}
-	userData, ok := userDataAny.(*user.UserData)
+	userData, ok := userDataAny.(user.UserData)
 	if !ok {
 		MakeErrorResponseWithCode(
 			c.Writer,
@@ -203,7 +203,7 @@ func (h *TransactionHandler) GetUserTransactions(c *gin.Context) {
 		MakeErrorResponseWithoutCode(c.Writer, err)
 		return
 	}
-	MakeSuccessResponse(c.Writer, res, "successfully withdrawed")
+	MakeSuccessResponse(c.Writer, res, "successfully fetched")
 }
 
 func NewTransactionHandler(

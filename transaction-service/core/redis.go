@@ -5,12 +5,10 @@ import (
 )
 
 func NewRedisClient(redisURI string) (*redis.Client, error) {
-	opts, err := redis.ParseURL(redisURI)
-	if err != nil {
-		return nil, err
-	}
 	client := redis.NewClient(&redis.Options{
-		Addr: opts.Addr,
+		Addr:     redisURI,
+		Password: "",
+		DB:       0,
 	})
 	return client, nil
 }

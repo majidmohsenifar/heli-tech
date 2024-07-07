@@ -29,7 +29,6 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	userConn, err := grpc.NewClient(
 		viper.GetString("usersrv.address"),
-		//config.UserServiceUrl(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -38,7 +37,6 @@ func main() {
 	}
 	transactionConn, err := grpc.NewClient(
 		viper.GetString("transactionsrv.address"),
-		//config.UserServiceUrl(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
