@@ -44,6 +44,11 @@ you need to have docker and docker-compose installed on your machine.
 - then authorize in swagger
 - then you can call the transaction routes like deposit, withdraw, and transactions-list
 
+## tests
+User-Service, Transaction-Service and Notification-Service has unit and integrations tests
+- unit tests are located in each package in service layer
+- integration tests are located in tests directory in each service
+
 
 ## locking mechanism
 as the deposits and withdraws can be called in parallel, the Transaction-Service uses a locking mechanism.
