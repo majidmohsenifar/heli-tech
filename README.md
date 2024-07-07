@@ -28,6 +28,9 @@ it exposes a rest API and calls other services using GRPC.
 - it is a consumer of kafka messages.
 - messages related to deposits and withdraws.
 
+# Data-contracts
+this directory contains all the proto files related to grpc and also message broker types.
+
 ## How to run the project
 you need to have docker and docker-compose installed on your machine.
 - clone the project
