@@ -2,6 +2,7 @@ package notification
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -20,11 +21,11 @@ type SendNotificationParams struct {
 }
 
 func (s *Service) SendNotification(ctx context.Context, params SendNotificationParams) error {
+	fmt.Println("got the notif", params)
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	if len(s.allNotifications) > 10 {
-		//empty slices without re allocation
-		s.allNotifications = s.allNotifications[:0]
+		s.allNotifications = []SendNotificationParams{}
 	}
 	s.allNotifications = append(s.allNotifications, params)
 	return nil
